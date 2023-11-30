@@ -1,0 +1,6 @@
+version: 3
+tasks:
+  run:
+    cmds:
+      - echo "Some mock exec"
+    desc: "Fires the service"
