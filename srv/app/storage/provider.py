@@ -1,6 +1,9 @@
+import base64
 from cryptography.fernet import Fernet
-from Crypto.Cipher import AES
-import base64, os
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
 
 
 class FernetAdapter:
@@ -16,80 +19,73 @@ class FernetAdapter:
         return self.provider.decrypt(message)
 
 
-# Naive wrapper for https://gist.github.com/syedrakib/d71c463fc61852b8d366
-class AesAdapter:
-    def __init__(self, enc_secret=None, pad='{'):
-        if not enc_secret:
-            enc_secret = self.generate_secret(kl=16)
+class RSAAdapter:
+    def __init__(self, secret="", pub_pem=None, p_pem=None):
+        self.secret = secret
 
-        self.enc_secret_key = enc_secret
-        self.pad = pad
+        if pub_pem is None and p_pem is None:
+            if len(secret) == 0:
+                raise Exception("incorrect secret is provided")
+            self.pub_pem, self.p_pem = self.gen_key_pair()
+        else:
+            self.pub_pem, self.p_pem = pub_pem, p_pem
 
     def encrypt(self, message):
-        secret_key = base64.b64decode(self.enc_secret_key)
-        cipher = AES.new(secret_key)
+        if self.pub_pem is None:
+            raise Exception("No pub_k provided")
 
-        padded_private_msg = message + (self.pad * ((16-len(message)) % 16))
-        encrypted_msg = cipher.encrypt(padded_private_msg)
-
-        return base64.b64encode(encrypted_msg)
+        pub_k = serialization.load_pem_public_key(self.pub_pem)
+        encrypted = pub_k.encrypt(
+            message.encode(),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+        return base64.b64encode(encrypted).decode('utf-8')
 
     def decrypt(self, message):
-        secret_key = base64.b64decode(self.enc_secret_key)
-        encrypted_msg = base64.b64decode(message)
-        cipher = AES.new(secret_key)
+        if self.p_pem is None or self.secret is None:
+            raise Exception("No pub_k provided")
+        message = base64.b64decode(message)
 
-        decrypted_msg = cipher.decrypt(encrypted_msg)
-        return decrypted_msg.rstrip(self.pad)
+        # Load the private key
+        private_key = serialization.load_pem_private_key(
+            self.p_pem,
+            password=self.secret.encode()
+        )
 
-    def get_enc_secret(self):
-        return self.enc_secret_key
+        # Decrypt the message
+        d_message = private_key.decrypt(
+            message,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+        return d_message
 
-    @staticmethod
-    def generate_secret(kl=24):
-        secret_key = os.urandom(kl)
-        return base64.b64encode(secret_key)
+    def gen_key_pair(self):
+        p_k = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=2048,
+        )
 
+        p_pem = p_k.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.BestAvailableEncryption(self.secret.encode())
+        )
 
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
-import os
+        pub_key = p_k.public_key()
+        pub_pem = pub_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        )
 
-# Предполагаемый пароль
-password = b"example password"
+        return pub_pem, p_pem
 
-# Генерация соли
-salt = os.urandom(16)
-
-# Создание ключа из пароля
-kdf = PBKDF2HMAC(
-    algorithm=hashes.SHA256(),
-    length=32,
-    salt=salt,
-    iterations=100000,
-    backend=default_backend()
-)
-key = kdf.derive(password)
-
-# Генерация асимметричной пары ключей
-private_key = rsa.generate_private_key(
-    public_exponent=65537,
-    key_size=2048,
-    backend=default_backend()
-)
-public_key = private_key.public_key()
-
-# Сериализация ключей
-private_key_bytes = private_key.private_bytes(
-    encoding=serialization.Encoding.PEM,
-    format=serialization.PrivateFormat.PKCS8,
-    encryption_algorithm=serialization.NoEncryption()
-)
-
-public_key_bytes = public_key.public_bytes(
-    encoding=serialization.Encoding.PEM,
-    format=serialization.PublicFormat.SubjectPublicKeyInfo
-)
+    def get_pair(self):
+        return self.pub_pem, self.p_pem

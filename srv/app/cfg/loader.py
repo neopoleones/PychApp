@@ -11,6 +11,7 @@ class Config:
         # Sets the default values for configuration options
         self.env = 'dev'
         self.secret = Fernet.generate_key()
+        self.rsa_secret = "superSe-cure"
 
         self.rest = {
             'host': 'localhost',

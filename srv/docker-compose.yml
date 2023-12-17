@@ -7,7 +7,7 @@ services:
     ports:
       - '27017:27017'
     volumes:
-      - mongo_state_1:/data/db
+      - mongo_state_12:/data/db
 
   pychapp:
     hostname: pych
@@ -18,7 +18,7 @@ services:
       dockerfile: ./images/pychapp/Dockerfile
 
 volumes:
-  mongo_state_1:
+  mongo_state_12:
 
 networks:
   default:

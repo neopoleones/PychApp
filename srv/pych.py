@@ -2,7 +2,7 @@ import structlog as slog
 from app.cfg import loader
 from app.service import get_service
 from wsgiref.simple_server import make_server
-from app.storage.provider import FernetAdapter
+from app.storage.provider import FernetAdapter, RSAAdapter
 from app.storage.mongo import PychStorage
 
 slog.configure(
@@ -18,8 +18,8 @@ if __name__ == "__main__":
         # Get all components for service
         cfg = loader.get_configuration()
         logger = slog.get_logger()
-        sp,  = FernetAdapter(cfg.secret)
-        storage = PychStorage(cfg)
+        sp, rp = FernetAdapter(cfg.secret), RSAAdapter(secret=cfg.secret)
+        storage = PychStorage(cfg, rp)
 
         service = get_service(cfg, logger, sp, storage)
         with make_server(cfg.rest['host'], cfg.rest['port'], service) as httpd:
@@ -27,4 +27,4 @@ if __name__ == "__main__":
             httpd.serve_forever()
 
     except Exception as tle:
-        print(f"Got top level exception: {type(tle)}")
+        print(f"Got top level exception: {tle}")
