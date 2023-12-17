@@ -2,6 +2,7 @@ import falcon
 
 from app.resources.middleware import *
 from app.resources.status import StatusResource
+from app.resources.chat import NewResource, ListResource
 from app.resources.user import RegisterResource, SearchResource, LoginResource
 from app.storage.mongo import ValidationFailedException, EntityNotFoundException, DuplicateEntryException
 
@@ -11,6 +12,8 @@ def register_handlers(app, cfg, storage, sp):
     app.add_route("/api/user/register", RegisterResource(storage))
     app.add_route("/api/user/search", SearchResource(storage))
     app.add_route("/api/user/login", LoginResource(storage, sp))
+    app.add_route("/api/chat/new", NewResource(storage, cfg.secret))
+    app.add_route("/api/chat/list", ListResource(storage))
 
 
 def get_service(cfg, logger, security_provider, storage) -> falcon.App:

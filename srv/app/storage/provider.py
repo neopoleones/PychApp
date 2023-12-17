@@ -92,7 +92,7 @@ class RSAAdapter:
 
 
 if __name__ == "__main__":
-    k = b'-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA9034VfaxPcOkChmhPCcR\nIMfXZlpywjluMMvtR2LxqnLF5ybxxJaVhUrtLBzFZKqmeTFSlVLNDrvNZBoiln/6\nsDAaluJblh/heU6Ws/Th+arwQU98qACwJ6Tf47+jHbJ8iROn+04BRekLuMaRp3b8\nZ2Q0MctjasGSo22wE9sz5/KrIdTCYKoDjGbzWr1gwQQOK/jvr/9YTnonTD7qMNsF\n11bnxfImntjlnGmadO9USvFSormGpzVIKlooLyvAUkd+YvTSEli4bbGLfP3KxmJG\nsySxpI6yKtSAyP1Y6D3BCz4eTPxNiBXlN1qz1C60yPJguD/o7A2u/Z0nXBWXtVQ+\nnwIDAQAB\n-----END PUBLIC KEY-----\n'
+    k = b'-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxsRCmTGKFOsuL2FF/v52\nAORcuX9MQ7RmCv31u7IIac5tL1hFSHMYFdeEhebsqXM/mpqS7+kGoU7gKs8tMta6\nYwGlW/jlTGQNhQaR8RddvgA64k4hWZS3rJzvhdjFP/DQfMXMqTcLZLUyTlUCLJER\nivBFuXTUD7bEUWNpzOGQPqiTPd+YwsF1KfmlEU9dRrVL52uRJ+sncFOm3j5zqG0Y\nHQ9mcHrrOxdUhY1aFEcm4IxG5iIxr+Xnwf27ct5Gpu5SKS/iVtzy7tk+sI6bTMHk\n/m94wjOXgW1gdFiekuebwaANKWILK3DsUtivs9SohDQqgqo1QuwPPEcPMMqM9Yzl\nVQIDAQAB\n-----END PUBLIC KEY-----\n'
     ra = RSAAdapter(pub_pem=k)
     res = ra.encrypt("abaca")
     print(res)

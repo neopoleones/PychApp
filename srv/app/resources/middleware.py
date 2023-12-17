@@ -1,5 +1,5 @@
-import cryptography.fernet
 import falcon
+import cryptography.fernet
 from app.storage.mongo import EntityNotFoundException
 
 

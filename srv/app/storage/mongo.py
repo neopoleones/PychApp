@@ -1,6 +1,6 @@
 import falcon
 import pymongo
-from .model import User
+from .model import User, Chat
 from bson.objectid import ObjectId
 
 
@@ -33,6 +33,65 @@ class PychStorage:
 
         # Проверяем, что индекс уникален
         self.db["users"].create_index({"name": 1}, unique=True)
+
+    def add_chat(self, chat):
+        chats_collection = self.db["chats"]
+
+        inserted = chats_collection.insert_one(chat.to_mongo())
+        chat.cid = inserted.inserted_id
+
+    def get_chat(self, src_user, dst_user):
+        chats_collection = self.db["chats"]
+
+        query = {
+            "init_login": src_user.get_login(),
+            "dst_login": dst_user.get_login(),
+        }
+
+        query_dest = {
+            "init_login": dst_user.get_login(),
+            "dst_login": src_user.get_login(),
+        }
+
+        doc = chats_collection.find_one({"$or": [
+            query, query_dest
+        ]})
+
+        if doc is None:
+            raise EntityNotFoundException()
+
+        return Chat(
+            doc.get("aes"), b"", doc.get("init_login"),
+            doc.get("dst_login"), plain=True,
+            cid=doc.get("_id")
+        )
+
+    def get_chats(self, src_user):
+        chats_collection = self.db["chats"]
+        query = {
+            "init_login": src_user.get_login()
+        }
+
+        query_dest = {
+            "init_login": {
+                "$regex": ".*"
+            },
+            "dst_login": src_user.get_login()
+        }
+
+        docs = chats_collection.find({"$or": [
+            query, query_dest
+        ]})
+
+        chats = []
+        for doc in docs:
+            chat = Chat(
+                doc.get("aes"), b"", doc.get("init_login"),
+                doc.get("dst_login"), plain=True,
+                cid=doc.get("_id")
+            )
+            chats.append(chat)
+        return chats
 
     def add_user(self, user):
         users_collection = self.db["users"]

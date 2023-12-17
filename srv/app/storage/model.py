@@ -47,22 +47,35 @@ class User:
 
 
 class Chat:
-    def __init__(self, secret: str, aes_srv_encoded: bytes, u_init: User, u_dest: User):
-        print(secret)
+    def __init__(self, secret: str, aes_srv_encoded: bytes, u_init: User, u_dest: User, cid=None, plain=False):
+        if not plain:
+            self.ra = RSAAdapter(
+                secret=secret,
+                pub_pem=u_init.s_pub_k,
+                p_pem=u_init.s_p_k
+            )
 
-        self.ra = RSAAdapter(
-            secret=secret,
-            pub_pem=u_init.s_pub_k,
-            p_pem=u_init.s_p_k
-        )
+            self.aes = self.ra.decrypt(aes_srv_encoded)
+            self.init_user_login = u_init.get_login()
+            self.dst_user_login = u_dest.get_login()
+        else:
+            self.aes = secret
+            self.init_user_login = u_init
+            self.dst_user_login = u_dest
 
-        self.aes = self.ra.decrypt(aes_srv_encoded)
-        self.init_user = u_init
-        self.dst_user = u_dest
+        self.cif = cid
 
     def to_mongo(self):
         return {
-            "aes": self.aes.decode('utf-8'),
-            "init_uid": self.init_user,
-            "dst_user": self.dst_user,
+            "aes": self.aes,
+            "init_login": self.init_user_login,
+            "dst_login": self.dst_user_login,
         }
+
+    def safe_serialize(self, sp):
+        model = self.to_mongo()
+        if isinstance(model["aes"], (bytes, bytearray)):
+            model["aes"] = model["aes"].decode('utf-8')
+
+        model["aes"] = sp.encrypt(model["aes"])
+        return model
