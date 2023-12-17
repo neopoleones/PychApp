@@ -41,6 +41,8 @@ class ChatUI:
 
     def receive_messages(self):
         time.sleep(5)
+        self.console.print("\r")
         self.receive_message("Hello there!")
         time.sleep(5)
+        self.console.print("\r")
         self.receive_message("Test123")

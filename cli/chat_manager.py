@@ -4,11 +4,13 @@ from rich.prompt import Prompt
 
 
 class ChatManager:
+    # unique for each user
     def __init__(self, config):
         self.console = Console()
         self.chats = []
         self.username = None
         self.config = config
+        self.auth = None  # auth token
 
     def main_menu(self):
         while True:

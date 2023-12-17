@@ -1,11 +1,9 @@
-from cryptography.fernet import Fernet
+from Crypto.PublicKey import RSA
 
-key = Fernet.generate_key()  # This key should be stored and managed securely
 
-def encrypt_message(message):
-    cipher_suite = Fernet(key)
-    return cipher_suite.encrypt(message.encode())
-
-def decrypt_message(encrypted_message):
-    cipher_suite = Fernet(key)
-    return cipher_suite.decrypt(encrypted_message).decode()
+# generate pair of keys
+def generate_key_pair():
+    key = RSA.generate(2048)
+    private_key = key.export_key()
+    public_key = key.publickey().export_key()
+    return private_key, public_key

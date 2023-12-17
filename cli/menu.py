@@ -17,8 +17,7 @@ class Menu:
                 self.show_login_menu()
 
     def show_login_menu(self):
-        self.console.print(
-            "[1] Register\n[2] Login\n[3] Exit", style="bold yellow")
+        self.console.print("[1] Register\n[2] Login\n[3] Exit", style="bold yellow")
         choice = Prompt.ask("Choose an option")
 
         if choice == '1':
@@ -30,14 +29,20 @@ class Menu:
 
     def register_user(self):
         username = Prompt.ask("Enter a username")
+        hostname = Prompt.ask("Enter a hostname")
         password = Prompt.ask("Enter a password", password=True)
-        self.auth_system.register(username, password)
-        self.console.print("Registration successful", style="bold green")
+        
+        if (auth := self.auth_system.register(username, hostname, password)):
+            self.chat_manager.auth = auth
+            self.console.print("Registration successful", style="bold green")
+        else:
+            self.console.print("Registration failed", style="bold red")
 
     def login_user(self):
         username = Prompt.ask("Enter your username")
+        hostname = Prompt.ask("Enter a hostname")
         password = Prompt.ask("Enter your password", password=True)
-        if self.auth_system.login(username, password):
+        if self.auth_system.login(username, hostname, password):
             self.console.print("Login successful", style="bold green")
         else:
             self.console.print(

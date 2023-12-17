@@ -1,14 +1,50 @@
+import requests
+import json
+from encryption_utils import generate_key_pair
+
 class UserAuthentication:
     def __init__(self, config):
         self.logged_in_user = None
         self.config = config
 
-    def register(self, username, password):
-        # Placeholder for server communication
-        pass
+    def register(self, username, hostname, password):
+        private_key, public_key = generate_key_pair()
+        url = f"{self.config['server_url']}/api/user/register"
 
-    def login(self, username, password):
-        # Placeholder for server communication
-        # If login is successful, set self.logged_in_user
-        self.logged_in_user = username  # Assuming login is successful
-        return True  # Return True if login is successful, False otherwise
+        payload = json.dumps({
+            "username": username,
+            "hostname": hostname,
+            "password": password,
+            # TODO: Generate keypair
+            "u_pub_k": public_key.decode('utf-8'),
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+        
+        if response.status_code == 200:
+            return True
+        return False
+
+
+    def login(self, username, hostname, password):
+        url = f"{self.config['server_url']}/api/user/login"
+
+        payload = json.dumps({
+            "username": username,
+            "hostname": hostname,
+            "password": password,
+        })
+
+        headers = {
+        'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        if response.status_code == 200:
+            self.logged_in_user = username
+            return response.headers['Auth']
+        return False
