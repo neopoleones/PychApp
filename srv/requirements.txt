@@ -1,0 +1,7 @@
+falcon
+pyyaml
+structlog
+gunicorn
+cryptography
+pymongo
+pycrypto
