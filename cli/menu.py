@@ -32,9 +32,11 @@ class Menu:
         hostname = Prompt.ask("Enter a hostname")
         password = Prompt.ask("Enter a password", password=True)
         
-        if (auth := self.auth_system.register(username, hostname, password)):
-            self.chat_manager.auth = auth
+        if keys := self.auth_system.register(username, hostname, password):
             self.console.print("Registration successful", style="bold green")
+            self.chat_manager.public_key = keys[0]
+            self.chat_manager.private_key = keys[1]
+
         else:
             self.console.print("Registration failed", style="bold red")
 
@@ -42,8 +44,8 @@ class Menu:
         username = Prompt.ask("Enter your username")
         hostname = Prompt.ask("Enter a hostname")
         password = Prompt.ask("Enter your password", password=True)
-        if self.auth_system.login(username, hostname, password):
+        if auth := self.auth_system.login(username, hostname, password):
+            self.chat_manager.auth = auth
             self.console.print("Login successful", style="bold green")
         else:
-            self.console.print(
-                "Invalid username or password", style="bold red")
+            self.console.print("Invalid username or password", style="bold red")

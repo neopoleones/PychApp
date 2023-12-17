@@ -15,7 +15,6 @@ class UserAuthentication:
             "username": username,
             "hostname": hostname,
             "password": password,
-            # TODO: Generate keypair
             "u_pub_k": public_key.decode('utf-8'),
         })
         headers = {
@@ -25,7 +24,7 @@ class UserAuthentication:
         response = requests.request("POST", url, headers=headers, data=payload)
         
         if response.status_code == 200:
-            return True
+            return private_key, public_key
         return False
 
 
@@ -39,12 +38,12 @@ class UserAuthentication:
         })
 
         headers = {
-        'Content-Type': 'application/json'
+            'Content-Type': 'application/json'
         }
 
         response = requests.request("POST", url, headers=headers, data=payload)
 
         if response.status_code == 200:
-            self.logged_in_user = username
+            self.logged_in_user = f"{username}@{hostname}"
             return response.headers['Auth']
         return False

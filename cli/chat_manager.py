@@ -11,6 +11,8 @@ class ChatManager:
         self.username = None
         self.config = config
         self.auth = None  # auth token
+        self.public_key = None
+        self.private_key = None
 
     def main_menu(self):
         while True:
@@ -26,7 +28,7 @@ class ChatManager:
                 break
 
     def create_new_chat(self):
-        interlocutor = Prompt.ask("Enter interlocutor's username")
+        interlocutor = Prompt.ask("Enter interlocutor's username@hostname")
         new_chat = ChatUI(self.username, interlocutor)
         self.chats.append(new_chat)
         new_chat.start()
@@ -37,8 +39,7 @@ class ChatManager:
             return
 
         for index, chat in enumerate(self.chats):
-            self.console.print(
-                f"[{index}] {chat.username} - {chat.interlocutor}")
+            self.console.print(f"[{index}] {chat.username} - {chat.interlocutor}")
 
         chat_index = int(Prompt.ask("Select a chat"))
         if 0 <= chat_index < len(self.chats):
