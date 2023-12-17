@@ -1,18 +1,29 @@
 from chat_ui import ChatUI
 from rich.console import Console
 from rich.prompt import Prompt
-
+import sqlite3
 
 class ChatManager:
     # unique for each user
-    def __init__(self, config):
+    def __init__(self, config, username, hostname, auth):
         self.console = Console()
         self.chats = []
-        self.username = None
+        self.username = username
+        self.hostname = hostname
+        self.auth = auth # auth token
         self.config = config
-        self.auth = None  # auth token
         self.public_key = None
         self.private_key = None
+        self.db_conn = sqlite3.connect('chats.db', check_same_thread=False)
+        self.db_cursor = self.db_conn.cursor()
+        self.db_cursor.execute("""
+            CREATE TABLE IF NOT EXISTS chats (
+                id INTEGER PRIMARY KEY,
+                username TEXT,
+                interlocutor TEXT
+            )
+        """)
+        self.load_existing_chats()
 
     def main_menu(self):
         while True:
@@ -27,11 +38,31 @@ class ChatManager:
             elif choice == '3':
                 break
 
-    def create_new_chat(self):
+    def create_new_chat(self): 
         interlocutor = Prompt.ask("Enter interlocutor's username@hostname")
-        new_chat = ChatUI(self.username, interlocutor)
-        self.chats.append(new_chat)
+        chat_id = len(self.chats) + 1  # generate a unique chat_id
+        new_chat = ChatUI(self.username, interlocutor, chat_id)
+        self.db_cursor.execute("""
+            INSERT INTO chats (username, interlocutor)
+            VALUES (?, ?)
+        """, (self.username, interlocutor))
+        self.db_conn.commit()
         new_chat.start()
+
+    def load_existing_chats(self):
+        self.db_cursor.execute("""
+            SELECT username, interlocutor
+            FROM chats
+            WHERE username = ?
+        """, (f"{self.username}@{self.hostname}",))
+        rows = self.db_cursor.fetchall()
+        print("rows: ", len(rows))
+        for row in rows:
+            print("row: ", row)
+            chat_id = len(self.chats) + 1
+            chat = ChatUI(self.username, row[1], chat_id)
+            self.chats.append(chat)
+        
 
     def enter_existing_chat(self):
         if not self.chats:
@@ -40,7 +71,6 @@ class ChatManager:
 
         for index, chat in enumerate(self.chats):
             self.console.print(f"[{index}] {chat.username} - {chat.interlocutor}")
-
         chat_index = int(Prompt.ask("Select a chat"))
         if 0 <= chat_index < len(self.chats):
             self.chats[chat_index].start()

@@ -1,12 +1,13 @@
 from rich.console import Console
 from rich.prompt import Prompt
-
+from chat_manager import ChatManager
 
 class Menu:
-    def __init__(self, chat_manager, auth_system):
-        self.console = Console()
-        self.chat_manager = chat_manager
+    def __init__(self, config, auth_system):
+        self.config = config
         self.auth_system = auth_system
+        self.chat_manager = None
+        self.console = Console()
 
     def start(self):
         while True:
@@ -45,7 +46,7 @@ class Menu:
         hostname = Prompt.ask("Enter a hostname")
         password = Prompt.ask("Enter your password", password=True)
         if auth := self.auth_system.login(username, hostname, password):
-            self.chat_manager.auth = auth
             self.console.print("Login successful", style="bold green")
+            self.chat_manager = ChatManager(self.config, username, hostname, auth)
         else:
             self.console.print("Invalid username or password", style="bold red")
