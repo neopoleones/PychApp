@@ -1,4 +1,5 @@
 import hashlib
+from app.storage.provider import RSAAdapter
 
 
 class User:
@@ -43,3 +44,25 @@ class User:
     @staticmethod
     def harden(password):
         return hashlib.md5(password.encode()).hexdigest()
+
+
+class Chat:
+    def __init__(self, secret: str, aes_srv_encoded: bytes, u_init: User, u_dest: User):
+        print(secret)
+
+        self.ra = RSAAdapter(
+            secret=secret,
+            pub_pem=u_init.s_pub_k,
+            p_pem=u_init.s_p_k
+        )
+
+        self.aes = self.ra.decrypt(aes_srv_encoded)
+        self.init_user = u_init
+        self.dst_user = u_dest
+
+    def to_mongo(self):
+        return {
+            "aes": self.aes.decode('utf-8'),
+            "init_uid": self.init_user,
+            "dst_user": self.dst_user,
+        }

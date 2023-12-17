@@ -89,3 +89,15 @@ class RSAAdapter:
 
     def get_pair(self):
         return self.pub_pem, self.p_pem
+
+
+if __name__ == "__main__":
+    k = b'-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA9034VfaxPcOkChmhPCcR\nIMfXZlpywjluMMvtR2LxqnLF5ybxxJaVhUrtLBzFZKqmeTFSlVLNDrvNZBoiln/6\nsDAaluJblh/heU6Ws/Th+arwQU98qACwJ6Tf47+jHbJ8iROn+04BRekLuMaRp3b8\nZ2Q0MctjasGSo22wE9sz5/KrIdTCYKoDjGbzWr1gwQQOK/jvr/9YTnonTD7qMNsF\n11bnxfImntjlnGmadO9USvFSormGpzVIKlooLyvAUkd+YvTSEli4bbGLfP3KxmJG\nsySxpI6yKtSAyP1Y6D3BCz4eTPxNiBXlN1qz1C60yPJguD/o7A2u/Z0nXBWXtVQ+\nnwIDAQAB\n-----END PUBLIC KEY-----\n'
+    ra = RSAAdapter(pub_pem=k)
+    res = ra.encrypt("abaca")
+    print(res)
+#	key = input('secret: ')
+#	ra = RSAAdapter(secret=key)
+#	pub, priv = ra.gen_key_pair()
+#	print(pub)
+#	print(priv)

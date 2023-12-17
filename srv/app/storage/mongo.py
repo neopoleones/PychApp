@@ -59,10 +59,8 @@ class PychStorage:
             raise EntityNotFoundException()
 
         user = User(
-            doc.get("name"),
-            doc.get("hostname"),
-            doc.get("password"),
-            doc.get("u_pub_pem"),
+            doc.get("name"), doc.get("hostname"),
+            doc.get("password"), doc.get("u_pub_pem"),
             uid=uid
         )
 
@@ -73,15 +71,21 @@ class PychStorage:
 
         return user
 
-    def get_users_by_filter(self, name='', hostname=''):
-        query = {
-            "name": {
-                "$regex": f"{name}.*"
-            },
-            "hostname": {
-                "$regex": f"{hostname}.*"
-            },
-        }
+    def get_users_by_filter(self, name='', hostname='', strict=False):
+        if not strict:
+            query = {
+                "name": {
+                    "$regex": f"{name}"
+                },
+                "hostname": {
+                    "$regex": f"{hostname}"
+                },
+            }
+        else:
+            query = {
+                "name": name,
+                "hostname": hostname
+            }
 
         users_collection = self.db["users"]
         users = []
