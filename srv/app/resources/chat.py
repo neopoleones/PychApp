@@ -4,6 +4,7 @@ from app.storage.provider import RSAAdapter
 from app.storage.mongo import EntityNotFoundException
 from app.resources.middleware import UserByTokenMiddleware
 
+
 class NewResource:
     def __init__(self, storage, secret):
         self.storage = storage

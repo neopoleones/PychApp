@@ -21,3 +21,5 @@ class StatusResource:
                 status_response['user'] = user.get_login()
 
         resp.media = status_response
+        resp.status = falcon.HTTP_200
+
