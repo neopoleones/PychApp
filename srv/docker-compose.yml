@@ -12,10 +12,14 @@ services:
   pychapp:
     hostname: pych
     ports:
-      - "8081:8080"
+      - "8080:8080"
+      - "8081:8081"
     build:
       context: .
       dockerfile: ./images/pychapp/Dockerfile
+
+    depends_on:
+      - mongodb
 
 volumes:
   mongo_state_12:

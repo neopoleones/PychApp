@@ -4,5 +4,4 @@ structlog
 gunicorn
 cryptography
 pymongo
-pycrypto
 wsocket
