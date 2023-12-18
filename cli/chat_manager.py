@@ -2,7 +2,7 @@ from chat_ui import ChatUI
 from rich.console import Console
 from rich.prompt import Prompt
 import sqlite3
-
+import re
 
 class ChatManager:
     # unique for each user
@@ -41,6 +41,9 @@ class ChatManager:
 
     def create_new_chat(self):
         interlocutor = Prompt.ask("Enter interlocutor's username@hostname")
+        if re.match(r"^[a-zA-Z0-9]+@[a-zA-Z0-9]+$", interlocutor) is None:
+            self.console.print("Invalid username@hostname", style="bold red")
+            return
         chat_id = len(self.chats) + 1  # generate a unique chat_id
         new_chat = ChatUI(self.username, interlocutor, chat_id)
         self.db_cursor.execute("""

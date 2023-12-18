@@ -8,6 +8,11 @@ class Menu:
         self.auth_system = auth_system
         self.chat_manager = None
         self.console = Console()
+        
+        if not self.auth_system.is_server_available():
+            self.console.print("Server is not available", style="bold red")
+            self.console.print("Exiting...", style="bold red")
+            exit(1)
 
     def start(self):
         while True:
