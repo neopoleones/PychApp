@@ -12,7 +12,7 @@ class UserAuthentication:
         if os.environ.get('PYCH_DEBUG'):
             return True
     
-        url = f"{self.config['server_url']}/status"
+        url = f"http://{self.config['server_host']}:{self.config['server_port']}/status"
         try:
             response = requests.get(url)
             response.raise_for_status()  # Raises a HTTPError if the status is 4xx, 5xx
@@ -23,7 +23,7 @@ class UserAuthentication:
 
     def register(self, username, hostname, password):
         private_key, public_key = generate_key_pair()
-        url = f"{self.config['server_url']}/api/user/register"
+        url = f"http://{self.config['server_host']}:{self.config['server_port']}/api/user/register"
 
         payload = json.dumps({
             "username": username,
@@ -36,14 +36,12 @@ class UserAuthentication:
         }
 
         response = requests.request("POST", url, headers=headers, data=payload)
-        
         if response.status_code == 200:
             return private_key, public_key
         return False
 
-
     def login(self, username, hostname, password):
-        url = f"{self.config['server_url']}/api/user/login"
+        url = f"http://{self.config['server_host']}:{self.config['server_port']}/api/user/login"
 
         payload = json.dumps({
             "username": username,

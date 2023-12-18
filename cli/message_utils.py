@@ -1,6 +1,8 @@
 import requests
 import json
 from encryption_utils import generate_aes_key, encrypt_message
+import websockets
+from time import now
 
 
 class ChatProtocol:
@@ -10,7 +12,7 @@ class ChatProtocol:
         self.s_pub_k = s_pub_k
 
     def new_chat(self, interlocutor, aes_key):
-        url = f"{self.config['server_url']}/api/chat/new"
+        url = f"http://{self.config['server_host']}:{self.config['server_port']}/api/chat/new"
 
         username, hostname = interlocutor.split('@')
 
@@ -32,7 +34,7 @@ class ChatProtocol:
         return False
 
     def list_chats(self):
-        url = f"{self.config['server_url']}/api/chat/list"
+        url = f"http://{self.config['server_host']}:{self.config['server_port']}/api/chat/list"
 
         headers = {
             'Auth': self.auth,
@@ -44,3 +46,18 @@ class ChatProtocol:
         if response.status_code == 200 and data['status'] == 'ok':
             return data['chats']
         return False
+
+    async def send_message(self, message):
+        websocket_url = f"ws://{self.config['server_host']}:{self.config['ws_port']}/ws"
+        async with websockets.connect(websocket_url) as websocket:
+            await websocket.send(json.dumps({
+                'msg': message,
+                'timestamp': now(),
+            }))
+
+    async def receive_messages(self):
+        websocket_url = f"ws://{self.config['server_host']}:{self.config['ws_port']}/ws"
+        async with websockets.connect(websocket_url) as websocket:
+            while True:
+                message = await websocket.recv()
+                return json.loads(message)['msg']

@@ -2,13 +2,16 @@ from rich.console import Console
 from rich.prompt import Prompt
 from chat_manager import ChatManager
 
+
 class Menu:
     def __init__(self, config, auth_system):
         self.config = config
         self.auth_system = auth_system
         self.chat_manager = None
         self.console = Console()
-        
+        self.public_key = None
+        self.private_key = None
+
         if not self.auth_system.is_server_available():
             self.console.print("Server is not available", style="bold red")
             self.console.print("Exiting...", style="bold red")
@@ -23,7 +26,8 @@ class Menu:
                 self.show_login_menu()
 
     def show_login_menu(self):
-        self.console.print("[1] Register\n[2] Login\n[3] Exit", style="bold yellow")
+        self.console.print(
+            "[1] Register\n[2] Login\n[3] Exit", style="bold yellow")
         choice = Prompt.ask("Choose an option")
 
         if choice == '1':
@@ -37,11 +41,11 @@ class Menu:
         username = Prompt.ask("Enter a username")
         hostname = Prompt.ask("Enter a hostname")
         password = Prompt.ask("Enter a password", password=True)
-        
+
         if keys := self.auth_system.register(username, hostname, password):
             self.console.print("Registration successful", style="bold green")
-            self.chat_manager.public_key = keys[0]
-            self.chat_manager.private_key = keys[1]
+            self.public_key = keys[0]
+            self.private_key = keys[1]
 
         else:
             self.console.print("Registration failed", style="bold red")
@@ -52,6 +56,8 @@ class Menu:
         password = Prompt.ask("Enter your password", password=True)
         if login := self.auth_system.login(username, hostname, password):
             self.console.print("Login successful", style="bold green")
-            self.chat_manager = ChatManager(self.config, username, hostname, auth=login[0], s_pub_k=login[1])
+            self.chat_manager = ChatManager(self.config, username, hostname, auth=login[0], s_pub_k=login[1], private_key=self.private_key,
+                                            public_key=self.public_key)
         else:
-            self.console.print("Invalid username or password", style="bold red")
+            self.console.print(
+                "Invalid username or password", style="bold red")

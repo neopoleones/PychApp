@@ -7,13 +7,15 @@ from message_utils import ChatProtocol
 
 class ChatManager:
     # unique for each user
-    def __init__(self, config, username, hostname, auth, s_pub_k):
+    def __init__(self, config, username, hostname, auth, s_pub_k, public_key, private_key):
         self.console = Console()
         self.chats = []
         self.username = username
         self.hostname = hostname
         self.auth = auth  # auth token
         self.s_pub_k = s_pub_k # serer rsa public key
+        self.public_key = public_key
+        self.private_key = private_key
         self.config = config
         self.public_key = None
         self.private_key = None

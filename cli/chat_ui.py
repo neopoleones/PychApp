@@ -4,8 +4,9 @@ from rich.prompt import Prompt
 from rich.text import Text
 import queue
 import threading
-import time
 import sqlite3
+import asyncio
+
 
 class ChatUI:
     def __init__(self, username, interlocutor, chat_id):
@@ -39,9 +40,10 @@ class ChatUI:
                 else:
                     style = "bold blue"
 
-                self.console.print(Panel(Text(message, style=style), expand=False))
+                self.console.print(
+                    Panel(Text(message, style=style), expand=False))
 
-    def send_message(self):
+    def send_message(self, chat_protocol):
         while self.running:
             message = Prompt.ask(self.username)
             self.messages.put((self.username, message))
@@ -50,12 +52,15 @@ class ChatUI:
                 VALUES (?, ?, ?)
             """, (self.chat_id, self.username, message))
             self.db_conn.commit()
+            asyncio.run(chat_protocol.send_message(message))
 
     def start(self, chat_protocol):
         self.load_chat_history()
-        threading.Thread(target=self.display_messages, args=(chat_protocol,), daemon=True).start()
-        threading.Thread(target=self.receive_messages, args=(chat_protocol,), daemon=True).start()
-        self.send_message()
+        threading.Thread(target=self.display_messages, args=(
+            chat_protocol,), daemon=True).start()
+        threading.Thread(target=self.receive_messages, args=(
+            chat_protocol,), daemon=True).start()
+        self.send_message(chat_protocol)
 
     def load_chat_history(self):
         self.db_cursor.execute("""
@@ -72,19 +77,8 @@ class ChatUI:
     def stop(self):
         self.running = False
 
-    def receive_message(self, message):
-        # self.console.print(f"{self.interlocutor}: ", end="")
-        self.messages.put((self.interlocutor, message))
-        self.db_cursor.execute("""
-            INSERT INTO messages (chat_id, sender, message)
-            VALUES (?, ?, ?)
-        """, (self.chat_id, self.interlocutor, message))
-        self.db_conn.commit()
-
-    def receive_messages(self, chat_protocol):
-        time.sleep(5)
-        self.console.print("\r")
-        self.receive_message("Hello there!")
-        time.sleep(5)
-        self.console.print("\r")
-        self.receive_message("Test123")
+    def receive_messages(self, chat_protocol): 
+        while self.running:
+            message = asyncio.run(chat_protocol.receive_messages())
+            if message:
+                self.receive_message(message)
