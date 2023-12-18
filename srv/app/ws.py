@@ -6,6 +6,7 @@ from wsocket import WSocketApp, WebSocketError, run
 
 class ChatProtocol:
     chat: Chat
+    author: User
 
     def __init__(self, sp, ws, storage):
         self.ws = ws
@@ -61,6 +62,8 @@ class ChatProtocol:
             return {"error": "create chat before subscribing"}
 
         self.chat = chat
+        self.author = src_user
+
         return {"status": "ok", "login": src_user.get_login()}
 
     def serve_new_messages(self):
@@ -73,6 +76,7 @@ class ChatProtocol:
 
                 self.storage.add_message(Message(
                     self.chat,
+                    str(self.author.uid),
                     msg["msg"],
                     msg["timestamp"]
                 ))
@@ -88,7 +92,10 @@ class ChatProtocol:
             try:
                 messages = self.storage.get_messages(self.chat)
                 for msg in messages:
-                    self.send_msg(msg.serialize())
+                    if msg.author_id != str(self.author.uid):
+                        self.send_msg(msg.serialize())
+
+                        self.storage.set_message_read(msg)
                 time.sleep(1)
             except WebSocketError:
                 break

@@ -88,10 +88,11 @@ class Chat:
 
 
 class Message:
-    def __init__(self, chat: Chat, msg: str, timestamp: float, mid=None):
+    def __init__(self, chat: Chat, author_id: str, msg: str, timestamp: float, mid=None):
         self.mid = mid
         self.msg = msg
         self.chat = chat
+        self.author_id = author_id
         self.timestamp = timestamp
         self.read = False
 
@@ -99,6 +100,7 @@ class Message:
         return {
             "msg": self.msg,
             "chat_id": str(self.chat.cid),
+            "author_id": self.author_id,
             "read": self.read,
             "timestamp": self.timestamp,
         }
@@ -106,5 +108,6 @@ class Message:
     def serialize(self):
         return {
             "msg": self.msg,
-            "timestamp": self.timestamp
+            "author_id": self.author_id,
+            "timestamp": self.timestamp,
         }

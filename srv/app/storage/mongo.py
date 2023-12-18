@@ -41,6 +41,15 @@ class PychStorage:
 
     def set_message_read(self, message):
         messages_collection = self.db["messages"]
+        message.read = True
+
+        messages_collection.update_one({
+            "_id": message.mid
+        }, {
+            "$set": {
+                "read": True
+            }
+        }, upsert=False)
 
     def get_messages(self, chat):
         messages_collection = self.db["messages"]
@@ -52,9 +61,9 @@ class PychStorage:
         messages = []
         for doc in messages_collection.find(query):
             m = Message(
-                chat, doc.get("msg"),
+                chat, doc.get("author_id"), doc.get("msg"),
                 doc.get("timestamp"),
-                mid=doc.get("_id")
+                mid=doc.get("_id"),
             )
             messages.append(m)
         return messages
