@@ -30,14 +30,21 @@ class ChatUI:
     def display_messages(self):
         while self.running:
             if not self.messages.empty():
-                message = self.messages.get()
+                sender, message = self.messages.get()
                 self.console.print("\r")
-                self.console.print(Panel(message, expand=False))
+                self.console.print(f"{sender}:")
+
+                if sender == self.username:
+                    style = "bold green"
+                else:
+                    style = "bold blue"
+
+                self.console.print(Panel(Text(message, style=style), expand=False))
 
     def send_message(self):
         while self.running:
             message = Prompt.ask(self.username)
-            self.messages.put(Text(message, style="bold green"))
+            self.messages.put((self.username, message))
             self.db_cursor.execute("""
                 INSERT INTO messages (chat_id, sender, message)
                 VALUES (?, ?, ?)
@@ -60,15 +67,14 @@ class ChatUI:
         rows = self.db_cursor.fetchall()
         for row in rows:
             sender, message, _ = row
-            formatted_message = f"{sender}: {message}"
-            self.messages.put(Text(formatted_message, style="bold green" if sender == self.username else "bold blue"))
+            self.messages.put((sender, message))
 
     def stop(self):
         self.running = False
 
     def receive_message(self, message):
-        self.console.print(f"{self.interlocutor}: ", end="")
-        self.messages.put(Text(message, style="bold blue"))
+        # self.console.print(f"{self.interlocutor}: ", end="")
+        self.messages.put((self.interlocutor, message))
         self.db_cursor.execute("""
             INSERT INTO messages (chat_id, sender, message)
             VALUES (?, ?, ?)

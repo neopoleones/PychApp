@@ -3,6 +3,7 @@ from rich.console import Console
 from rich.prompt import Prompt
 import sqlite3
 
+
 class ChatManager:
     # unique for each user
     def __init__(self, config, username, hostname, auth):
@@ -10,7 +11,7 @@ class ChatManager:
         self.chats = []
         self.username = username
         self.hostname = hostname
-        self.auth = auth # auth token
+        self.auth = auth  # auth token
         self.config = config
         self.public_key = None
         self.private_key = None
@@ -38,7 +39,7 @@ class ChatManager:
             elif choice == '3':
                 break
 
-    def create_new_chat(self): 
+    def create_new_chat(self):
         interlocutor = Prompt.ask("Enter interlocutor's username@hostname")
         chat_id = len(self.chats) + 1  # generate a unique chat_id
         new_chat = ChatUI(self.username, interlocutor, chat_id)
@@ -58,11 +59,9 @@ class ChatManager:
         rows = self.db_cursor.fetchall()
         print("rows: ", len(rows))
         for row in rows:
-            print("row: ", row)
             chat_id = len(self.chats) + 1
             chat = ChatUI(self.username, row[1], chat_id)
             self.chats.append(chat)
-        
 
     def enter_existing_chat(self):
         if not self.chats:
@@ -70,7 +69,8 @@ class ChatManager:
             return
 
         for index, chat in enumerate(self.chats):
-            self.console.print(f"[{index}] {chat.username} - {chat.interlocutor}")
+            self.console.print(
+                f"[{index}] {chat.username} - {chat.interlocutor}")
         chat_index = int(Prompt.ask("Select a chat"))
         if 0 <= chat_index < len(self.chats):
             self.chats[chat_index].start()
