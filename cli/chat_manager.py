@@ -13,7 +13,7 @@ class ChatManager:
         self.username = username
         self.hostname = hostname
         self.auth = auth  # auth token
-        self.s_pub_k = s_pub_k
+        self.s_pub_k = s_pub_k # serer rsa public key
         self.config = config
         self.public_key = None
         self.private_key = None
@@ -53,7 +53,7 @@ class ChatManager:
             VALUES (?, ?)
         """, (self.username, interlocutor))
         self.db_conn.commit()
-        chat_protocol = ChatProtocol()
+        chat_protocol = ChatProtocol(self.config, self.auth, self.s_pub_k)
         new_chat.start(chat_protocol)
 
     def load_existing_chats(self):
@@ -63,7 +63,6 @@ class ChatManager:
             WHERE username = ?
         """, (f"{self.username}@{self.hostname}",))
         rows = self.db_cursor.fetchall()
-        print("rows: ", len(rows))
         for row in rows:
             chat_id = len(self.chats) + 1
             chat = ChatUI(self.username, row[1], chat_id)
@@ -79,7 +78,7 @@ class ChatManager:
                 f"[{index}] {chat.username} - {chat.interlocutor}")
         chat_index = int(Prompt.ask("Select a chat"))
         if 0 <= chat_index < len(self.chats):
-            chat_protocol = ChatProtocol()
+            chat_protocol = ChatProtocol(self.config, self.auth, self.s_pub_k)
             self.chats[chat_index].start(chat_protocol)
         else:
             self.console.print("Invalid selection", style="bold red")
