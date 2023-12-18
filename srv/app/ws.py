@@ -87,6 +87,9 @@ class ChatProtocol:
             except WebSocketError:
                 break
 
+            except Exception as e:
+                print(e)
+
     def communicate(self):
         while True:
             try:
@@ -99,6 +102,8 @@ class ChatProtocol:
                 time.sleep(1)
             except WebSocketError:
                 break
+            except Exception as e:
+                print(e)
 
 
 def run_wsapp(cfg, logger, sp, storage):
@@ -125,4 +130,4 @@ def run_wsapp(cfg, logger, sp, storage):
         th.start()
         ws_chat.communicate()
 
-    run(app)
+    run(app, host="0.0.0.0")
