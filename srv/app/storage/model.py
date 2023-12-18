@@ -1,4 +1,6 @@
 import hashlib
+import time
+
 from app.storage.provider import RSAAdapter
 
 
@@ -45,6 +47,10 @@ class User:
     def harden(password):
         return hashlib.md5(password.encode()).hexdigest()
 
+    @staticmethod
+    def parse_login(login):
+        return login.split("@")
+
 
 class Chat:
     def __init__(self, secret: str, aes_srv_encoded: bytes, u_init: User, u_dest: User, cid=None, plain=False):
@@ -63,7 +69,7 @@ class Chat:
             self.init_user_login = u_init
             self.dst_user_login = u_dest
 
-        self.cif = cid
+        self.cid = cid
 
     def to_mongo(self):
         return {
@@ -79,3 +85,26 @@ class Chat:
 
         model["aes"] = sp.encrypt(model["aes"])
         return model
+
+
+class Message:
+    def __init__(self, chat: Chat, msg: str, timestamp: float, mid=None):
+        self.mid = mid
+        self.msg = msg
+        self.chat = chat
+        self.timestamp = timestamp
+        self.read = False
+
+    def to_mongo(self):
+        return {
+            "msg": self.msg,
+            "chat_id": str(self.chat.cid),
+            "read": self.read,
+            "timestamp": self.timestamp,
+        }
+
+    def serialize(self):
+        return {
+            "msg": self.msg,
+            "timestamp": self.timestamp
+        }

@@ -1,6 +1,6 @@
 import falcon
 import pymongo
-from .model import User, Chat
+from .model import User, Chat, Message
 from bson.objectid import ObjectId
 
 
@@ -33,6 +33,31 @@ class PychStorage:
 
         # Проверяем, что индекс уникален
         self.db["users"].create_index({"name": 1}, unique=True)
+
+    def add_message(self, message):
+        messages_collection = self.db["messages"]
+        inserted = messages_collection.insert_one(message.to_mongo())
+        message.mid = inserted.inserted_id
+
+    def set_message_read(self, message):
+        messages_collection = self.db["messages"]
+
+    def get_messages(self, chat):
+        messages_collection = self.db["messages"]
+        query = {
+            "chat_id": str(chat.cid),
+            "read": False,
+        }
+
+        messages = []
+        for doc in messages_collection.find(query):
+            m = Message(
+                chat, doc.get("msg"),
+                doc.get("timestamp"),
+                mid=doc.get("_id")
+            )
+            messages.append(m)
+        return messages
 
     def add_chat(self, chat):
         chats_collection = self.db["chats"]
