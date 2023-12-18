@@ -3,15 +3,17 @@ from rich.console import Console
 from rich.prompt import Prompt
 import sqlite3
 import re
+from message_utils import ChatProtocol
 
 class ChatManager:
     # unique for each user
-    def __init__(self, config, username, hostname, auth):
+    def __init__(self, config, username, hostname, auth, s_pub_k):
         self.console = Console()
         self.chats = []
         self.username = username
         self.hostname = hostname
         self.auth = auth  # auth token
+        self.s_pub_k = s_pub_k
         self.config = config
         self.public_key = None
         self.private_key = None
@@ -51,7 +53,8 @@ class ChatManager:
             VALUES (?, ?)
         """, (self.username, interlocutor))
         self.db_conn.commit()
-        new_chat.start()
+        chat_protocol = ChatProtocol()
+        new_chat.start(chat_protocol)
 
     def load_existing_chats(self):
         self.db_cursor.execute("""
@@ -76,6 +79,7 @@ class ChatManager:
                 f"[{index}] {chat.username} - {chat.interlocutor}")
         chat_index = int(Prompt.ask("Select a chat"))
         if 0 <= chat_index < len(self.chats):
-            self.chats[chat_index].start()
+            chat_protocol = ChatProtocol()
+            self.chats[chat_index].start(chat_protocol)
         else:
             self.console.print("Invalid selection", style="bold red")

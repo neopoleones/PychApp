@@ -27,7 +27,7 @@ class ChatUI:
             )
         """)
 
-    def display_messages(self):
+    def display_messages(self, chat_protocol):
         while self.running:
             if not self.messages.empty():
                 sender, message = self.messages.get()
@@ -51,10 +51,10 @@ class ChatUI:
             """, (self.chat_id, self.username, message))
             self.db_conn.commit()
 
-    def start(self):
+    def start(self, chat_protocol):
         self.load_chat_history()
-        threading.Thread(target=self.display_messages, daemon=True).start()
-        threading.Thread(target=self.receive_messages, daemon=True).start()
+        threading.Thread(target=self.display_messages, args=(chat_protocol,), daemon=True).start()
+        threading.Thread(target=self.receive_messages, args=(chat_protocol,), daemon=True).start()
         self.send_message()
 
     def load_chat_history(self):
@@ -81,7 +81,7 @@ class ChatUI:
         """, (self.chat_id, self.interlocutor, message))
         self.db_conn.commit()
 
-    def receive_messages(self):
+    def receive_messages(self, chat_protocol):
         time.sleep(5)
         self.console.print("\r")
         self.receive_message("Hello there!")

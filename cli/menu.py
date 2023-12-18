@@ -50,8 +50,8 @@ class Menu:
         username = Prompt.ask("Enter your username")
         hostname = Prompt.ask("Enter a hostname")
         password = Prompt.ask("Enter your password", password=True)
-        if auth := self.auth_system.login(username, hostname, password):
+        if login := self.auth_system.login(username, hostname, password):
             self.console.print("Login successful", style="bold green")
-            self.chat_manager = ChatManager(self.config, username, hostname, auth)
+            self.chat_manager = ChatManager(self.config, username, hostname, auth=login[0], s_pub_k=login[1])
         else:
             self.console.print("Invalid username or password", style="bold red")

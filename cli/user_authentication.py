@@ -1,6 +1,7 @@
 import requests
 import json
 from encryption_utils import generate_key_pair
+import os
 
 class UserAuthentication:
     def __init__(self, config):
@@ -8,12 +9,15 @@ class UserAuthentication:
         self.config = config
 
     def is_server_available(self):
+        if os.environ.get('PYCH_DEBUG'):
+            return True
+    
         url = f"{self.config['server_url']}/status"
         try:
             response = requests.get(url)
             response.raise_for_status()  # Raises a HTTPError if the status is 4xx, 5xx
             data = response.json()
-            return data.get('status') == 'ok'
+            return data.get("status") == "ok"
         except (requests.HTTPError, requests.ConnectionError, ValueError):
             return False
 
@@ -25,10 +29,10 @@ class UserAuthentication:
             "username": username,
             "hostname": hostname,
             "password": password,
-            "u_pub_k": public_key.decode('utf-8'),
+            "u_pub_k": public_key.decode("utf-8"),
         })
         headers = {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json"
         }
 
         response = requests.request("POST", url, headers=headers, data=payload)
@@ -48,12 +52,16 @@ class UserAuthentication:
         })
 
         headers = {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json"
         }
 
-        response = requests.request("POST", url, headers=headers, data=payload)
-
-        if response.status_code == 200:
+        if os.environ.get('PYCH_DEBUG'):
             self.logged_in_user = f"{username}@{hostname}"
-            return response.headers['Auth']
+            return "TEST_AUTH_TOKEN", "test_public_key="
+            
+        response = requests.request("POST", url, headers=headers, data=payload)
+        data = response.json()
+        if response.status_code == 200 and data.get("status") == "ok":
+            self.logged_in_user = f"{username}@{hostname}"
+            return response.headers["Auth"], data.get("s_pub_k")
         return False
