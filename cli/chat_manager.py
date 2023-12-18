@@ -4,6 +4,7 @@ from rich.prompt import Prompt
 import sqlite3
 import re
 from message_utils import ChatProtocol
+import asyncio
 
 class ChatManager:
     # unique for each user
@@ -25,7 +26,8 @@ class ChatManager:
             CREATE TABLE IF NOT EXISTS chats (
                 id INTEGER PRIMARY KEY,
                 username TEXT,
-                interlocutor TEXT
+                interlocutor TEXT,
+                aes_key TEXT
             )
         """)
         self.load_existing_chats()
@@ -50,15 +52,24 @@ class ChatManager:
             return
         chat_id = len(self.chats) + 1  # generate a unique chat_id
         new_chat = ChatUI(self.username, interlocutor, chat_id)
-        self.db_cursor.execute("""
-            INSERT INTO chats (username, interlocutor)
-            VALUES (?, ?)
-        """, (self.username, interlocutor))
-        self.db_conn.commit()
         chat_protocol = ChatProtocol(self.config, self.auth, self.s_pub_k)
+
+        if not (aes_key := chat_protocol.new_chat(interlocutor)):
+            self.console.print("Error creating new chat", style="bold red")
+        
+        asyncio.run(chat_protocol.init_chat(interlocutor))
+        
+        # save aes_key to db
+        self.db_cursor.execute("""
+            INSERT INTO chats (username, interlocutor, aes_key)
+            VALUES (?, ?, ?)
+        """, (f"{self.username}@{self.hostname}", interlocutor, aes_key))
+        self.db_conn.commit()
+        self.chats.append(new_chat)
         new_chat.start(chat_protocol)
 
-    def load_existing_chats(self):
+    def load_existing_chats(self): 
+        # Fetch chats from the local database
         self.db_cursor.execute("""
             SELECT username, interlocutor
             FROM chats
@@ -70,6 +81,16 @@ class ChatManager:
             chat = ChatUI(self.username, row[1], chat_id)
             self.chats.append(chat)
 
+        # Fetch chats from the server
+        chat_protocol = ChatProtocol(self.config, self.auth, self.s_pub_k)
+        server_chats = chat_protocol.list_chats()
+        if server_chats:
+            for chat in server_chats:
+                if chat not in self.chats:
+                    chat_id = len(self.chats) + 1
+                    new_chat = ChatUI(self.username, chat, chat_id)
+                    self.chats.append(new_chat)
+    
     def enter_existing_chat(self):
         if not self.chats:
             self.console.print("No existing chats.", style="bold red")
