@@ -1,6 +1,6 @@
 import requests
 import json
-from encryption_utils import generate_aes_key, encrypt_message, RSAAdapter
+from encryption_utils import generate_aes_key, rsa_encrypt, RSAAdapter
 from time import time
 import base64
 
@@ -23,7 +23,7 @@ class ChatProtocol:
         payload = json.dumps({
             "dest_username": username,
             "dest_hostname": hostname,
-            "enc_aes": rsa.encrypt(("A"*16)),
+            "enc_aes": rsa.encrypt(aes_key),
         })
 
         headers = {
@@ -34,7 +34,7 @@ class ChatProtocol:
         response = requests.request("POST", url, headers=headers, data=payload)
         data = response.json()
         if response.status_code == 200 and data['status'] == 'ok':
-            return (base64.b64encode(aes_key).decode('utf-8'), data['cid'])
+            return (base64.b64encode(aes_key.encode()).decode('utf-8'), data['cid'])
         return False
 
     def list_chats(self):

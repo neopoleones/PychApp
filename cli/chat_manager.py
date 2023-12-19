@@ -5,6 +5,7 @@ import sqlite3
 import re
 from message_utils import ChatProtocol
 import asyncio
+from encryption_utils import rsa_decrypt
 
 
 class ChatManager:
@@ -19,8 +20,6 @@ class ChatManager:
         self.public_key = public_key
         self.private_key = private_key
         self.config = config
-        self.public_key = None
-        self.private_key = None
         self.db_conn = sqlite3.connect('chats.db', check_same_thread=False)
         self.db_cursor = self.db_conn.cursor()
         self.db_cursor.execute("""
@@ -91,7 +90,9 @@ class ChatManager:
                 if chat not in self.chats:
                     interlocutor = chat["init_login"] if chat["init_login"] != f"{self.username}@{self.hostname}" else chat["dst_login"]
                     username = f"{self.username}@{self.hostname}"
-                    new_chat = ChatUI(self.config, username, interlocutor, chat["cid"], self.auth, chat["aes"])
+                    print(f"Private key: {self.private_key}")
+                    print(f"Chat['aes']: {chat['aes']}")
+                    new_chat = ChatUI(self.config, username, interlocutor, chat["cid"], self.auth, rsa_decrypt(chat["aes"], self.private_key))
                     self.chats.append(new_chat)
 
     def enter_existing_chat(self):

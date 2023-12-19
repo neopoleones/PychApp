@@ -2,11 +2,14 @@ import requests
 import json
 from encryption_utils import generate_key_pair
 import os
+import sqlite3
+
 
 class UserAuthentication:
     def __init__(self, config):
         self.logged_in_user = None
         self.config = config
+        self.create_users_table()
 
     def is_server_available(self):
         if os.environ.get('PYCH_DEBUG'):
@@ -39,6 +42,35 @@ class UserAuthentication:
         if response.status_code == 200:
             return private_key, public_key
         return False
+
+    def create_users_table(self):
+        db_conn = sqlite3.connect('users.db', check_same_thread=False)
+        db_cursor = db_conn.cursor()
+        db_cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                username TEXT PRIMARY KEY,
+                public_key TEXT,
+                private_key TEXT
+            )
+        """)
+        db_conn.commit()
+
+    def save_keys_to_db(self, username, public_key, private_key):
+        db_conn = sqlite3.connect('users.db', check_same_thread=False)
+        db_cursor = db_conn.cursor()
+        db_cursor.execute("""
+            INSERT INTO users (username, public_key, private_key)
+            VALUES (?, ?, ?)
+        """, (username, public_key, private_key))
+        db_conn.commit()
+
+    def load_keys_from_db(self, username):
+        db_conn = sqlite3.connect('users.db', check_same_thread=False)
+        db_cursor = db_conn.cursor()
+        db_cursor.execute("""
+            SELECT public_key, private_key FROM users WHERE username = ?
+        """, (username,))
+        return db_cursor.fetchone()
 
     def login(self, username, hostname, password):
         url = f"http://{self.config['server_host']}:{self.config['server_port']}/api/user/login"

@@ -1,34 +1,63 @@
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
+from Crypto.Cipher import AES
+from Crypto.Hash import SHA256
 import base64
-import os
+import random
 
-from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
 
 
-
 def generate_aes_key():
-    # generate a random 32-byte key
-    return os.urandom(16)
+    # generates random printable aes key 16 symbols long
+    return "".join([chr(random.randint(32, 126)) for i in range(16)])
 
-# generate pair of keys
+
 def generate_key_pair():
+    # generate pair of keys
     key = RSA.generate(2048)
     private_key = key.export_key()
     public_key = key.publickey().export_key()
     return private_key, public_key
 
-def encrypt_message(message, public_key: str | bytes) -> str:
+def rsa_encrypt(message, public_key: str | bytes) -> str:
     # return encrypted message in base64
     key = RSA.import_key(public_key)
-    cipher = PKCS1_OAEP.new(key)
+    cipher = PKCS1_OAEP.new(key, hashAlgo=SHA256)
     encrypted_message = cipher.encrypt(message)
     return base64.b64encode(encrypted_message).decode("utf-8")
 
+def rsa_decrypt(message, private_key) -> str:
+    # return decrypted message
+    key = RSA.import_key(private_key)
+    cipher = PKCS1_OAEP.new(key, hashAlgo=SHA256)
+    decrypted_message = cipher.decrypt(base64.b64decode(message))
+    return decrypted_message.decode()
+
+def aes_encrypt(message, key):
+    # return encrypted message in base64
+    message = message.encode()
+    cipher = AES.new(key.encode(), AES.MODE_EAX)
+    nonce = cipher.nonce
+    ciphertext, tag = cipher.encrypt_and_digest(message)
+    return base64.b64encode(nonce + ciphertext + tag).decode("utf-8")
+
+def aes_decrypt(message, key):
+    # return decrypted message
+    message = base64.b64decode(message)
+    nonce = message[:16]
+    ciphertext = message[16:-16]
+    tag = message[-16:]
+    cipher = AES.new(key.encode(), AES.MODE_EAX, nonce=nonce)
+    plaintext = cipher.decrypt(ciphertext)
+    try:
+        cipher.verify(tag)
+        return plaintext.decode()
+    except ValueError:
+        return False
 
 class RSAAdapter:
     def __init__(self, secret="", pub_pem=None, p_pem=None):
