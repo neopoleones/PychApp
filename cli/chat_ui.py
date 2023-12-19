@@ -97,6 +97,7 @@ class ChatUI:
             while self.running:
                 if self.ws:
                     message = aes_decrypt(json.loads(self.receive_ws())["msg"], self.aes_key)
+                    print(message)
                     if message:
                         self.receive_message(message)
                 time.sleep(0.1)  # Reduce CPU usage

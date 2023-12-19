@@ -1,6 +1,7 @@
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
 from Crypto.Hash import SHA256
 import base64
 import random
@@ -12,9 +13,7 @@ from cryptography.hazmat.primitives import hashes
 
 
 def generate_aes_key():
-    # generates random printable aes key 16 symbols long
     return "".join([chr(random.randint(32, 126)) for i in range(16)])
-
 
 def generate_key_pair():
     # generate pair of keys
@@ -38,26 +37,15 @@ def rsa_decrypt(message, private_key) -> str:
     return decrypted_message.decode()
 
 def aes_encrypt(message, key):
-    # return encrypted message in base64
-    message = message.encode()
-    cipher = AES.new(key.encode(), AES.MODE_EAX)
-    nonce = cipher.nonce
-    ciphertext, tag = cipher.encrypt_and_digest(message)
-    return base64.b64encode(nonce + ciphertext + tag).decode("utf-8")
+    cipher = AES.new(base64.b64decode(key), AES.MODE_ECB)
+    ct_bytes = cipher.encrypt(pad(message.encode(), AES.block_size))
+    ciphertext = ct_bytes
+    return base64.b64encode(ciphertext).decode('utf-8')
 
-def aes_decrypt(message, key):
-    # return decrypted message
-    message = base64.b64decode(message)
-    nonce = message[:16]
-    ciphertext = message[16:-16]
-    tag = message[-16:]
-    cipher = AES.new(key.encode(), AES.MODE_EAX, nonce=nonce)
-    plaintext = cipher.decrypt(ciphertext)
-    try:
-        cipher.verify(tag)
-        return plaintext.decode()
-    except ValueError:
-        return False
+def aes_decrypt(ciphertext, key):
+    cipher = AES.new(key.encode(), AES.MODE_ECB)
+    pt = unpad(cipher.decrypt(base64.b64decode(ciphertext.encode())), AES.block_size)
+    return pt.decode('utf-8')
 
 class RSAAdapter:
     def __init__(self, secret="", pub_pem=None, p_pem=None):

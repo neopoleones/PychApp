@@ -90,8 +90,6 @@ class ChatManager:
                 if chat not in self.chats:
                     interlocutor = chat["init_login"] if chat["init_login"] != f"{self.username}@{self.hostname}" else chat["dst_login"]
                     username = f"{self.username}@{self.hostname}"
-                    print(f"Private key: {self.private_key}")
-                    print(f"Chat['aes']: {chat['aes']}")
                     new_chat = ChatUI(self.config, username, interlocutor, chat["cid"], self.auth, rsa_decrypt(chat["aes"], self.private_key))
                     self.chats.append(new_chat)
 
