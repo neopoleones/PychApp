@@ -1,10 +1,10 @@
-from cli.chat_ui import ChatUI
+from chat_ui import ChatUI
 from rich.console import Console
 from rich.prompt import Prompt
 import sqlite3
 import re
-from cli.message_utils import ChatProtocol
-from cli.encryption_utils import rsa_decrypt
+from message_utils import ChatProtocol
+from encryption_utils import rsa_decrypt
 
 
 class ChatManager:
@@ -35,7 +35,15 @@ class ChatManager:
 
     """
 
-    def __init__(self, config, username, hostname, auth, s_pub_k, public_key, private_key):
+    def __init__(
+            self,
+            config,
+            username,
+            hostname,
+            auth,
+            s_pub_k,
+            public_key,
+            private_key):
         self.console = Console()
         self.chats = []
         self.username = username
@@ -64,7 +72,8 @@ class ChatManager:
         """
         while True:
             self.console.print(
-                "[1] Create new chat\n[2] Enter existing chat\n[3] Exit", style="bold yellow")
+                "[1] Create new chat\n[2] Enter existing chat\n[3] Exit",
+                style="bold yellow")
             choice = Prompt.ask("Choose an option")
 
             if choice == '1':
@@ -122,9 +131,18 @@ class ChatManager:
         if server_chats:
             for chat in server_chats:
                 if chat not in self.chats:
-                    interlocutor = chat["init_login"] if chat["init_login"] != f"{self.username}@{self.hostname}" else chat["dst_login"]
+                    interlocutor = chat["init_login"] if chat[
+                        "init_login"] != f"{self.username}@{self.hostname}" else chat["dst_login"]
                     username = f"{self.username}@{self.hostname}"
-                    new_chat = ChatUI(self.config, username, interlocutor, chat["cid"], self.auth, rsa_decrypt(chat["aes"], self.private_key))
+                    new_chat = ChatUI(
+                        self.config,
+                        username,
+                        interlocutor,
+                        chat["cid"],
+                        self.auth,
+                        rsa_decrypt(
+                            chat["aes"],
+                            self.private_key))
                     self.chats.append(new_chat)
 
     def enter_existing_chat(self):

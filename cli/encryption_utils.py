@@ -14,6 +14,7 @@ from cryptography.hazmat.primitives import hashes
 
 import random
 
+
 def generate_aes_key():
     """
     Generates a random AES key.
@@ -22,6 +23,7 @@ def generate_aes_key():
         str: The generated AES key.
     """
     return "".join([chr(random.randint(32, 126)) for i in range(16)])
+
 
 def generate_key_pair():
     """
@@ -34,6 +36,7 @@ def generate_key_pair():
     private_key = key.export_key()
     public_key = key.publickey().export_key()
     return private_key, public_key
+
 
 def rsa_encrypt(message, public_key):
     """
@@ -52,6 +55,7 @@ def rsa_encrypt(message, public_key):
     encrypted_message = cipher.encrypt(message)
     return base64.b64encode(encrypted_message).decode("utf-8")
 
+
 def rsa_decrypt(message, private_key):
     """
     Decrypts the given RSA encrypted message using the provided private key.
@@ -69,6 +73,7 @@ def rsa_decrypt(message, private_key):
     decrypted_message = cipher.decrypt(base64.b64decode(message))
     return decrypted_message.decode()
 
+
 def aes_encrypt(message, key):
     """
     Encrypts the given message using AES encryption algorithm.
@@ -85,6 +90,7 @@ def aes_encrypt(message, key):
     ciphertext = ct_bytes
     return base64.b64encode(ciphertext).decode('utf-8')
 
+
 def aes_decrypt(ciphertext, key):
     """
     Decrypts the given ciphertext using AES encryption algorithm.
@@ -97,12 +103,17 @@ def aes_decrypt(ciphertext, key):
         str: The decrypted plaintext.
     """
     cipher = AES.new(key.encode(), AES.MODE_ECB)
-    pt = unpad(cipher.decrypt(base64.b64decode(ciphertext.encode())), AES.block_size)
+    pt = unpad(
+        cipher.decrypt(
+            base64.b64decode(
+                ciphertext.encode())),
+        AES.block_size)
     return pt.decode('utf-8')
+
 
 class RSAAdapter:
     """
-    A class used for RSA encryption and decryption.   
+    A class used for RSA encryption and decryption.
 
     Attributes:
         secret (str): The secret used for encryption and decryption.
@@ -118,7 +129,7 @@ class RSAAdapter:
             secret (str): The secret used for encryption and decryption. Default is an empty string.
             pub_pem (bytes): The public key in PEM format. Default is None.
             p_pem (bytes): The private key in PEM format. Default is None.
-        
+
         Raises:
             Exception: If no public key or private key is provided.
         """
@@ -207,8 +218,8 @@ class RSAAdapter:
         p_pem = p_k.private_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PrivateFormat.PKCS8,
-            encryption_algorithm=serialization.BestAvailableEncryption(self.secret.encode())
-        )
+            encryption_algorithm=serialization.BestAvailableEncryption(
+                self.secret.encode()))
 
         pub_key = p_k.public_key()
         pub_pem = pub_key.public_bytes(

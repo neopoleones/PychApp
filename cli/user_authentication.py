@@ -1,6 +1,6 @@
 import requests
 import json
-from cli.encryption_utils import generate_key_pair
+from encryption_utils import generate_key_pair
 import os
 import sqlite3
 
@@ -41,7 +41,7 @@ class UserAuthentication:
         """
         if os.environ.get('PYCH_DEBUG'):
             return True
-    
+
         url = f"http://{self.config['server_host']}:{self.config['server_port']}/status"
         try:
             response = requests.get(url)
@@ -162,7 +162,7 @@ class UserAuthentication:
         if os.environ.get('PYCH_DEBUG'):
             self.logged_in_user = f"{username}@{hostname}"
             return "TEST_AUTH_TOKEN", "test_public_key="
-            
+
         response = requests.request("POST", url, headers=headers, data=payload)
         data = response.json()
         if response.status_code == 200 and data.get("status") == "ok":

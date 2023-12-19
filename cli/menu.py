@@ -1,7 +1,8 @@
 from rich.console import Console
 from rich.prompt import Prompt
-from cli.chat_manager import ChatManager
+from chat_manager import ChatManager
 import sqlite3
+
 
 class Menu:
     """Represents a menu for the PychApp command-line interface.
@@ -83,7 +84,8 @@ class Menu:
             self.console.print("Registration successful", style="bold green")
             self.public_key = keys[1]
             self.private_key = keys[0]
-            self.auth_system.save_keys_to_db(username, self.public_key, self.private_key)
+            self.auth_system.save_keys_to_db(
+                username, self.public_key, self.private_key)
         else:
             self.console.print("Registration failed", style="bold red")
 
@@ -101,12 +103,21 @@ class Menu:
 
         if login := self.auth_system.login(username, hostname, password):
             self.console.print("Login successful", style="bold green")
-            self.public_key, self.private_key = self.auth_system.load_keys_from_db(username)
+            self.public_key, self.private_key = self.auth_system.load_keys_from_db(
+                username)
             if self.public_key is None or self.private_key is None:
-                self.console.print("Error loading keys from db", style="bold red")
+                self.console.print(
+                    "Error loading keys from db",
+                    style="bold red")
                 return
-            self.chat_manager = ChatManager(self.config, username, hostname, auth=login[0], s_pub_k=login[1], private_key=self.private_key,
-                                            public_key=self.public_key)
+            self.chat_manager = ChatManager(
+                self.config,
+                username,
+                hostname,
+                auth=login[0],
+                s_pub_k=login[1],
+                private_key=self.private_key,
+                public_key=self.public_key)
         else:
             self.console.print(
                 "Invalid username or password", style="bold red")

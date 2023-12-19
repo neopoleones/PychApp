@@ -8,8 +8,9 @@ import time
 import sqlite3
 import websocket
 import json
-from cli.encryption_utils import aes_decrypt, aes_encrypt
+from encryption_utils import aes_decrypt, aes_encrypt
 import base64
+
 
 class ChatUI:
     """
@@ -77,7 +78,12 @@ class ChatUI:
                 else:
                     style = "bold blue"
 
-                self.console.print(Panel(Text(message, style=style), expand=False))
+                self.console.print(
+                    Panel(
+                        Text(
+                            message,
+                            style=style),
+                        expand=False))
 
     def send_message(self):
         """
@@ -146,7 +152,10 @@ class ChatUI:
         """
         while self.running:
             if self.ws:
-                message = aes_decrypt(json.loads(self.receive_ws())["msg"], self.aes_key)
+                message = aes_decrypt(
+                    json.loads(
+                        self.receive_ws())["msg"],
+                    self.aes_key)
                 if message:
                     self.receive_message(message)
             time.sleep(0.1)  # Reduce CPU usage

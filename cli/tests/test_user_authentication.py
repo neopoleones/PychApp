@@ -23,12 +23,14 @@ class TestUserAuthentication(unittest.TestCase):
     def test_register(self):
         with patch.object(requests, 'request') as mock_request:
             mock_request.return_value.status_code = 200
-            private_key, public_key = self.auth.register("test_user", "test_host", "test_password")
+            private_key, public_key = self.auth.register(
+                "test_user", "test_host", "test_password")
             self.assertIsNotNone(private_key)
             self.assertIsNotNone(public_key)
 
             mock_request.return_value.status_code = 400
-            result = self.auth.register("test_user", "test_host", "test_password")
+            result = self.auth.register(
+                "test_user", "test_host", "test_password")
             self.assertFalse(result)
 
     def test_create_users_table(self):
@@ -38,8 +40,10 @@ class TestUserAuthentication(unittest.TestCase):
     def test_login(self):
         with patch.object(requests, 'request') as mock_request:
             mock_request.return_value.status_code = 200
-            mock_request.return_value.json.return_value = {"status": "ok", "s_pub_k": "test_public_key"}
-            auth_token, server_public_key = self.auth.login("test_user", "test_host", "test_password")
+            mock_request.return_value.json.return_value = {
+                "status": "ok", "s_pub_k": "test_public_key"}
+            auth_token, server_public_key = self.auth.login(
+                "test_user", "test_host", "test_password")
             self.assertIsNotNone(auth_token)
             self.assertIsNotNone(server_public_key)
 

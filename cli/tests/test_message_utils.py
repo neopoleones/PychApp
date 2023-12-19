@@ -3,6 +3,7 @@ from unittest.mock import patch
 from cli.message_utils import ChatProtocol
 import base64
 
+
 class TestChatProtocol(unittest.TestCase):
 
     def setUp(self):
@@ -41,9 +42,17 @@ class TestChatProtocol(unittest.TestCase):
 
                     result = self.protocol.new_chat(interlocutor)
 
-                    mock_request.assert_called_once_with("POST", f"http://{self.config['server_host']}:{self.config['server_port']}/api/chat/new", headers={'Auth': self.auth, 'Content-Type': 'application/json'}, data='{"dest_username": "user", "dest_hostname": "example.com", "enc_aes": "encrypted_aes_key"}')
+                    mock_request.assert_called_once_with(
+                        "POST",
+                        f"http://{self.config['server_host']}:{self.config['server_port']}/api/chat/new",
+                        headers={
+                            'Auth': self.auth,
+                            'Content-Type': 'application/json'},
+                        data='{"dest_username": "user", "dest_hostname": "example.com", "enc_aes": "encrypted_aes_key"}')
 
-                    self.assertEqual(result, (base64.b64encode(aes_key.encode()).decode(), chat_id))
+                    self.assertEqual(
+                        result, (base64.b64encode(
+                            aes_key.encode()).decode(), chat_id))
 
     def test_list_chats_success(self):
         expected_response = {
@@ -57,7 +66,11 @@ class TestChatProtocol(unittest.TestCase):
 
             result = self.protocol.list_chats()
 
-            mock_request.assert_called_once_with("GET", f"http://{self.config['server_host']}:{self.config['server_port']}/api/chat/list", headers={'Auth': self.auth})
+            mock_request.assert_called_once_with(
+                "GET",
+                f"http://{self.config['server_host']}:{self.config['server_port']}/api/chat/list",
+                headers={
+                    'Auth': self.auth})
 
             self.assertEqual(result, expected_response['chats'])
 
@@ -73,9 +86,14 @@ class TestChatProtocol(unittest.TestCase):
 
             result = self.protocol.list_chats()
 
-            mock_request.assert_called_once_with("GET", f"http://{self.config['server_host']}:{self.config['server_port']}/api/chat/list", headers={'Auth': self.auth})
+            mock_request.assert_called_once_with(
+                "GET",
+                f"http://{self.config['server_host']}:{self.config['server_port']}/api/chat/list",
+                headers={
+                    'Auth': self.auth})
 
             self.assertFalse(result)
+
 
 if __name__ == '__main__':
     unittest.main()
