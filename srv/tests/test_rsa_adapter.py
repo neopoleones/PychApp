@@ -1,6 +1,7 @@
 import pytest
 from srv.app.storage.provider import RSAAdapter
 
+
 class TestRSAAdapter:
 
     def test_init_with_no_args_raises_exception(self):

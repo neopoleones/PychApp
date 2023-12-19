@@ -131,5 +131,5 @@ class ListResource:
         resp.status = falcon.HTTP_200
         resp.media = {
             "status": "ok",
-            "chats":  [c.safe_serialize(sp) for c in chats],
+            "chats": [c.safe_serialize(sp) for c in chats],
         }

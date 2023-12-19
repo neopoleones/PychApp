@@ -45,7 +45,7 @@ class StatusResource:
         status_response = {
             "app": f"pychapp_{self.cfg.env}",
             "status": "ok",
-            "uptime": time.time()-self.started
+            "uptime": time.time() - self.started
         }
 
         if 'auth' in req.context and 'user' in req.context['auth']:

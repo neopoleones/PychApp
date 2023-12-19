@@ -10,6 +10,7 @@ class Middleware:
     This class serves as a base for other middleware classes. It provides a basic structure
     for processing requests and responses in a Falcon web application.
     """
+
     def process_request(self, req, resp):
         """
         Process an incoming request.
