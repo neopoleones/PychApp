@@ -83,6 +83,7 @@ class Chat:
             model["aes"] = model["aes"].decode('utf-8')
 
         model["aes"] = sp.encrypt(model["aes"])
+        model["cid"] = str(self.cid)
         return model
 
 

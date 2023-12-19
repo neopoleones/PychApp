@@ -6,12 +6,45 @@ from app.resources.middleware import UserByTokenMiddleware
 
 
 class NewResource:
+    """
+    A resource for handling new chat creation in a Falcon web application.
+
+    This class is responsible for handling POST requests to create a new chat
+    between users.
+
+    Attributes:
+        storage: The storage backend used for retrieving and storing user and
+        chat information.
+        secret: A secret key used for chat-related operations.
+
+    Methods:
+        on_post(req, resp): Handles the POST request to create a new chat.
+    """
+
     def __init__(self, storage, secret):
         self.storage = storage
         self.secret = secret
 
     @falcon.before(UserByTokenMiddleware.check_user)
     def on_post(self, req, resp):
+        """
+        Handles POST requests to create a new chat between users.
+
+        The method extracts the destination user's username and hostname, and an encrypted AES key
+        from the request. It then checks if a chat already exists between the initiator and the
+        destination user. If not, it creates a new chat and adds it to the storage.
+
+        Args:
+            req: The request object, containing details about the HTTP request.
+            resp: The response object, used to return data back to the client.
+
+        Raises:
+            falcon.HTTPBadRequest: If required fields are missing in the request or if the initiator
+                                   tries to create a chat with themselves.
+            falcon.HTTPNotFound: If the specified destination user is not found.
+            falcon.HTTPUnauthorized: If there is an issue with the provided AES key.
+        """
+
         try:
             dest_username = req.media["dest_username"]
             dest_hostname = req.media["dest_hostname"]

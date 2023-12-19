@@ -7,8 +7,27 @@ DEFAULT_PATH = "etc/default.yml"
 
 
 class Config:
+    """
+    A class to manage configuration settings from a YAML file.
+
+    Attributes:
+        env (str): Environment setting, defaults to 'dev'.
+        secret (bytes): Secret key for encryption, generated using Fernet.
+        rsa_secret (str): RSA secret key.
+        rest (dict): Configuration for REST API including host and port.
+        mongo (dict): MongoDB connection settings including connection
+        link and database name.
+
+    Args:
+        path (str): The file path to the YAML configuration file.
+
+    Raises:
+        Exception: If the configuration file is incorrect or missing
+        required sections.
+    """
+
     def __init__(self, path: str):
-        # Sets the default values for configuration options
+
         self.env = 'dev'
         self.secret = Fernet.generate_key()
         self.rsa_secret = "superSe-cure"
@@ -26,6 +45,8 @@ class Config:
         self.__load_configuration(path)
 
     def __load_configuration(self, path: str):
+        """Method to load configuration from the specified YAML file."""
+
         with open(path, 'r') as raw:
             cfg = yaml.load(raw, yaml.Loader)
             if 'pychapp' not in cfg:
@@ -37,6 +58,19 @@ class Config:
 
 
 def get_configuration() -> Config:
+    """
+    Loads and returns a Config object based on the environment
+    configuration file.
+
+    Returns:
+        Config: The configuration object initialized
+        with settings from the file.
+
+    Notes:
+        The file path is determined by the environment variable
+        ENV_PATH, with a default fallback.
+    """
+
     path = os.environ.get(ENV_PATH)
     if not path:
         path = DEFAULT_PATH
