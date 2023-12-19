@@ -38,9 +38,13 @@ class SearchResource:
         hostname = req.params['hostname'] if 'hostname' in req.params else ""
 
         if len(username) == 0 and len(hostname) == 0:
-            raise falcon.HTTPBadRequest("username or hostname should be specified")
+            raise falcon.HTTPBadRequest(
+                "username or hostname should be specified"
+            )
 
-        users = self.storage.get_users_by_filter(name=username, hostname=hostname)
+        users = self.storage.get_users_by_filter(
+            name=username, hostname=hostname
+        )
 
         resp.status = falcon.HTTP_200
         resp.media = {
@@ -64,15 +68,18 @@ class LoginResource:
             raise falcon.HTTPBadRequest(title="not all fields specified")
 
         # Check if client specified correct auth data
-        u = self.storage.get_users_by_filter(name=username, hostname=hostname, strict=True)
+        u = self.storage.get_users_by_filter(
+            name=username, hostname=hostname, strict=True
+        )
         if len(u) != 1:
             raise falcon.HTTPNotFound(title="user not found")
         u = u[0]
 
-        if not (u.get_login() == f'{username}@{hostname}' and User.harden(password) == u.password):
+        eq_login = u.get_login() == f'{username}@{hostname}'
+        if not (eq_login and User.harden(password) == u.password):
             raise falcon.HTTPUnauthorized(title="bad auth data")
-        token = self.sp.encrypt(u.uid_as_bytes())
 
+        token = self.sp.encrypt(u.uid_as_bytes())
         resp.set_header("Auth", token.decode('utf-8'))
         resp.status = falcon.HTTP_200
 

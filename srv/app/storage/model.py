@@ -1,6 +1,4 @@
 import hashlib
-import time
-
 from app.storage.provider import RSAAdapter
 
 
@@ -8,7 +6,7 @@ class User:
     s_p_k: str
     s_pub_k: str
 
-    def __init__(self, name: str, hostname: str, password: str, u_pub_k: str, uid=None):
+    def __init__(self, name, hostname, password, u_pub_k, uid=None):
         """Name and Hostname should be alphanumeric"""
 
         self.uid = uid
@@ -21,7 +19,8 @@ class User:
         return self.get_login()
 
     def validate(self):
-        return self.name.isalnum() and self.hostname.isalnum() and len(self.password) >= 8
+        uc = self.name.isalnum() and self.hostname.isalnum()
+        return uc and len(self.password) >= 8
 
     def to_mongo(self):
         return {
@@ -53,7 +52,7 @@ class User:
 
 
 class Chat:
-    def __init__(self, secret: str, aes_srv_encoded: bytes, u_init: User, u_dest: User, cid=None, plain=False):
+    def __init__(self, secret, aes, u_init, u_dest, cid=None, plain=False):
         if not plain:
             self.ra = RSAAdapter(
                 secret=secret,
@@ -61,7 +60,7 @@ class Chat:
                 p_pem=u_init.s_p_k
             )
 
-            self.aes = self.ra.decrypt(aes_srv_encoded)
+            self.aes = self.ra.decrypt(aes)
             self.init_user_login = u_init.get_login()
             self.dst_user_login = u_dest.get_login()
         else:
@@ -88,7 +87,7 @@ class Chat:
 
 
 class Message:
-    def __init__(self, chat: Chat, author_id: str, msg: str, timestamp: float, mid=None):
+    def __init__(self, chat, author_id, msg, timestamp, mid=None):
         self.mid = mid
         self.msg = msg
         self.chat = chat

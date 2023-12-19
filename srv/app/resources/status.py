@@ -22,4 +22,3 @@ class StatusResource:
 
         resp.media = status_response
         resp.status = falcon.HTTP_200
-

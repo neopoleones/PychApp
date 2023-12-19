@@ -4,6 +4,7 @@ import time
 from app.storage.model import User, Chat, Message
 from wsocket import WSocketApp, WebSocketError, run
 
+
 class ChatProtocol:
     chat: Chat
     author: User
@@ -50,7 +51,9 @@ class ChatProtocol:
             return {"error": "invalid destination login"}
         username, hostname = ld
 
-        dst_user = self.storage.get_users_by_filter(name=username, hostname=hostname, strict=True)
+        dst_user = self.storage.get_users_by_filter(
+            name=username, hostname=hostname, strict=True
+        )
         if len(dst_user) != 1:
             return {"error": "destination not found"}
         dst_user = dst_user[0]
@@ -58,7 +61,7 @@ class ChatProtocol:
         # Проверим наличие переписки
         try:
             chat = self.storage.get_chat(src_user, dst_user)
-        except:
+        except Exception:
             return {"error": "create chat before subscribing"}
 
         self.chat = chat

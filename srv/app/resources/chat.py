@@ -20,7 +20,9 @@ class NewResource:
         except Exception:
             raise falcon.HTTPBadRequest(title="not all fields specified")
 
-        dest_user = self.storage.get_users_by_filter(name=dest_username, hostname=dest_hostname, strict=True)
+        dest_user = self.storage.get_users_by_filter(
+            name=dest_username, hostname=dest_hostname, strict=True
+        )
         if len(dest_user) != 1:
             raise falcon.HTTPNotFound(title="user not found")
 
@@ -33,7 +35,9 @@ class NewResource:
             _ = self.storage.get_chat(init_user, dest_user)
 
             # Чат есть, выводим ошибку
-            raise falcon.HTTPBadRequest(title="can't create second chat with user")
+            raise falcon.HTTPBadRequest(
+                title="can't create second chat with user"
+            )
 
         except EntityNotFoundException:
 

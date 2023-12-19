@@ -73,10 +73,11 @@ class RSAAdapter:
             key_size=2048,
         )
 
+        es = serialization.BestAvailableEncryption(self.secret.encode())
         p_pem = p_k.private_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PrivateFormat.PKCS8,
-            encryption_algorithm=serialization.BestAvailableEncryption(self.secret.encode())
+            encryption_algorithm=es
         )
 
         pub_key = p_k.public_key()
@@ -89,15 +90,3 @@ class RSAAdapter:
 
     def get_pair(self):
         return self.pub_pem, self.p_pem
-
-
-if __name__ == "__main__":
-    k  = b"-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1Zw9CElIHiID5mV1gcHu\n5ddh8AItgp3iSGHbjsjhd0W1lI/tZXCtyDFxDwK94KAPC7NHg4uYnEtFlLRYva6U\nfYynLhHNMXPaphiZr4gGspDxwCsQrEqlMByhMa2LXtqYifkK37tey/aA5MJdMBJC\n7YYTpbqSHKMAplzuiSaCcmRodD90eKdd4Dcbe6VubpRCadQ0vZyoIpEZuGv2ZYnz\n+nuN0ONctnnosaL2rXMb/mAAb76WXT+EEf5tXwjMag7XzaCmNUCbX+SWLakImyhB\n66m/JJG2xZ/hRQf8/3g8TKwU5oS7TpiUXe1gmUQcBaEoHF9/FMSXK0mX1tpfqybT\nzwIDAQAB\n-----END PUBLIC KEY-----\n"
-    ra = RSAAdapter(pub_pem=k)
-    res = ra.encrypt("abaca")
-    print(res)
-#	key = input('secret: ')
-#	ra = RSAAdapter(secret=key)
-#	pub, priv = ra.gen_key_pair()
-#	print(pub)
-#	print(priv)

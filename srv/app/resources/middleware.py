@@ -63,7 +63,9 @@ class UserByTokenMiddleware(Middleware):
     def check_user(req, res, resource, params):
         auth_data = req.context['auth']
         if 'err' in auth_data:
-            raise falcon.HTTPUnauthorized(title="Not authorized", description=auth_data['err'])
+            raise falcon.HTTPUnauthorized(
+                title="Not authorized", description=auth_data['err']
+            )
 
 
 class RequireJSON(Middleware):

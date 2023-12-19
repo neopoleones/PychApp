@@ -1,10 +1,10 @@
 import falcon
 
+from app.storage.mongo import *
 from app.resources.middleware import *
 from app.resources.status import StatusResource
 from app.resources.chat import NewResource, ListResource
 from app.resources.user import RegisterResource, SearchResource, LoginResource
-from app.storage.mongo import ValidationFailedException, EntityNotFoundException, DuplicateEntryException
 
 
 def register_handlers(app, cfg, storage, sp):
@@ -25,9 +25,12 @@ def get_service(cfg, logger, security_provider, storage) -> falcon.App:
         ]
     )
 
-    app.add_error_handler(ValidationFailedException, ValidationFailedException.handle)
-    app.add_error_handler(EntityNotFoundException, EntityNotFoundException.handle)
-    app.add_error_handler(DuplicateEntryException, DuplicateEntryException.handle)
+    app.add_error_handler(
+        ValidationFailedException, ValidationFailedException.handle)
+    app.add_error_handler(
+        EntityNotFoundException, EntityNotFoundException.handle)
+    app.add_error_handler(
+        DuplicateEntryException, DuplicateEntryException.handle)
 
     logger.info('Registering the resources')
     register_handlers(app, cfg, storage, security_provider)

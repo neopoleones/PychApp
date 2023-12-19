@@ -30,7 +30,11 @@ if __name__ == "__main__":
         service = get_service(cfg, logger, sp, storage)
 
         with make_server(cfg.rest['host'], cfg.rest['port'], service) as httpd:
-            logger.info('Starting pychapp', env=cfg.env, addr=f"{cfg.rest['host']}:{cfg.rest['port']}")
+            logger.info(
+                'Starting pychapp',
+                env=cfg.env,
+                addr=f"{cfg.rest['host']}:{cfg.rest['port']}"
+            )
             httpd.serve_forever()
 
     except Exception as tle:
