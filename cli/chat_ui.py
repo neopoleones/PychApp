@@ -8,7 +8,7 @@ import time
 import sqlite3
 import websocket
 import json
-from encryption_utils import aes_decrypt, aes_encrypt
+from cli.encryption_utils import aes_decrypt, aes_encrypt
 import base64
 
 class ChatUI:

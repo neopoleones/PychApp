@@ -1,6 +1,6 @@
 import requests
 import json
-from encryption_utils import generate_key_pair
+from cli.encryption_utils import generate_key_pair
 import os
 import sqlite3
 

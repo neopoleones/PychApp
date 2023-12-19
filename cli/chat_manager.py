@@ -1,11 +1,10 @@
-from chat_ui import ChatUI
+from cli.chat_ui import ChatUI
 from rich.console import Console
 from rich.prompt import Prompt
 import sqlite3
 import re
-from message_utils import ChatProtocol
-import asyncio
-from encryption_utils import rsa_decrypt
+from cli.message_utils import ChatProtocol
+from cli.encryption_utils import rsa_decrypt
 
 
 class ChatManager:

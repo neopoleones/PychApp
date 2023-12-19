@@ -1,6 +1,6 @@
 import requests
 import json
-from encryption_utils import generate_aes_key, rsa_encrypt, RSAAdapter
+from cli.encryption_utils import generate_aes_key, RSAAdapter
 from time import time
 import base64
 

@@ -1,6 +1,6 @@
 from rich.console import Console
 from rich.prompt import Prompt
-from chat_manager import ChatManager
+from cli.chat_manager import ChatManager
 import sqlite3
 
 class Menu:

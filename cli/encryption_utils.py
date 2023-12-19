@@ -75,10 +75,10 @@ def aes_encrypt(message, key):
 
     Args:
         message (str): The message to be encrypted.
-        key (str): The encryption key.
+        key (bytes): The encryption key.
 
     Returns:
-        str: The encrypted ciphertext.
+        str: The encrypted ciphertext encoded in base64.
     """
     cipher = AES.new(base64.b64decode(key), AES.MODE_ECB)
     ct_bytes = cipher.encrypt(pad(message.encode(), AES.block_size))
@@ -90,7 +90,7 @@ def aes_decrypt(ciphertext, key):
     Decrypts the given ciphertext using AES encryption algorithm.
 
     Args:
-        ciphertext (str): The encrypted ciphertext to be decrypted.
+        ciphertext (bytes): The encrypted ciphertext to be decrypted.
         key (str): The encryption key used for decryption.
 
     Returns:

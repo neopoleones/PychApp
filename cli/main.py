@@ -1,5 +1,5 @@
-from user_authentication import UserAuthentication
-from menu import Menu
+from cli.user_authentication import UserAuthentication
+from cli.menu import Menu
 import toml
 
 import toml
