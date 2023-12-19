@@ -1,7 +1,6 @@
 import requests
 import json
 from encryption_utils import generate_aes_key, encrypt_message, RSAAdapter
-import websockets
 from time import time
 import base64
 
@@ -21,8 +20,6 @@ class ChatProtocol:
 
         rsa = RSAAdapter(pub_pem=self.s_pub_k.encode())
 
-        print(f"{self.s_pub_k=}")
-
         payload = json.dumps({
             "dest_username": username,
             "dest_hostname": hostname,
@@ -36,7 +33,6 @@ class ChatProtocol:
     
         response = requests.request("POST", url, headers=headers, data=payload)
         data = response.json()
-        print(data)
         if response.status_code == 200 and data['status'] == 'ok':
             return base64.b64encode(aes_key).decode('utf-8')
         return False
@@ -54,29 +50,3 @@ class ChatProtocol:
         if response.status_code == 200 and data['status'] == 'ok':
             return data['chats']
         return False
-
-    async def init_chat(self, dest_login):
-        websocket_url = f"ws://{self.config['server_host']}:{self.config['ws_port']}/ws"
-        async with websockets.connect(websocket_url) as websocket:
-            print(f"init_chat")
-            await websocket.send(json.dumps({
-                'token': self.auth,
-                'dest_login': dest_login,
-            }))
-
-    async def send_message(self, message):
-        websocket_url = f"ws://{self.config['server_host']}:{self.config['ws_port']}/ws"
-        async with websockets.connect(websocket_url) as websocket:
-            print(f"send_message")
-            await websocket.send(json.dumps({
-                'msg': message,
-                'timestamp': time(),
-            }))
-
-    async def receive_messages(self):
-        websocket_url = f"ws://{self.config['server_host']}:{self.config['ws_port']}/ws"
-        async with websockets.connect(websocket_url) as websocket:
-            print(f"receive_messages")
-            while True:
-                message = await websocket.recv()
-                return json.loads(message)['msg']

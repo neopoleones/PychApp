@@ -51,14 +51,12 @@ class ChatManager:
             self.console.print("Invalid username@hostname", style="bold red")
             return
         chat_id = len(self.chats) + 1  # generate a unique chat_id
-        new_chat = ChatUI(self.username, interlocutor, chat_id)
+        new_chat = ChatUI(self.config, self.username, interlocutor, chat_id, self.auth)
         chat_protocol = ChatProtocol(self.config, self.auth, self.s_pub_k)
 
         if not (aes_key := chat_protocol.new_chat(interlocutor)):
             self.console.print("Error creating new chat", style="bold red")
-        
-        asyncio.run(chat_protocol.init_chat(interlocutor))
-        
+            
         # save aes_key to db
         self.db_cursor.execute("""
             INSERT INTO chats (username, interlocutor, aes_key)
@@ -66,7 +64,7 @@ class ChatManager:
         """, (f"{self.username}@{self.hostname}", interlocutor, aes_key))
         self.db_conn.commit()
         self.chats.append(new_chat)
-        new_chat.start(chat_protocol)
+        new_chat.start()
 
     def load_existing_chats(self): 
         # Fetch chats from the local database
@@ -78,7 +76,7 @@ class ChatManager:
         rows = self.db_cursor.fetchall()
         for row in rows:
             chat_id = len(self.chats) + 1
-            chat = ChatUI(self.username, row[1], chat_id)
+            chat = ChatUI(self.config, self.username, row[1], chat_id, self.auth)
             self.chats.append(chat)
 
         # Fetch chats from the server
@@ -88,7 +86,7 @@ class ChatManager:
             for chat in server_chats:
                 if chat not in self.chats:
                     chat_id = len(self.chats) + 1
-                    new_chat = ChatUI(self.username, chat, chat_id)
+                    new_chat = ChatUI(self.config, self.username, chat, chat_id, self.auth)
                     self.chats.append(new_chat)
     
     def enter_existing_chat(self):
@@ -102,6 +100,6 @@ class ChatManager:
         chat_index = int(Prompt.ask("Select a chat"))
         if 0 <= chat_index < len(self.chats):
             chat_protocol = ChatProtocol(self.config, self.auth, self.s_pub_k)
-            self.chats[chat_index].start(chat_protocol)
+            self.chats[chat_index].start()
         else:
             self.console.print("Invalid selection", style="bold red")
