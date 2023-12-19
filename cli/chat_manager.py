@@ -9,7 +9,33 @@ from encryption_utils import rsa_decrypt
 
 
 class ChatManager:
-    # unique for each user
+    """
+    Manages the chat functionality of the application.
+
+    Args:
+        config (dict): Configuration settings for the chat manager.
+        username (str): The username of the current user.
+        hostname (str): The hostname of the current user.
+        auth (str): The authentication token for the user.
+        s_pub_k (str): The server's RSA public key.
+        public_key (str): The user's public key.
+        private_key (str): The user's private key.
+
+    Attributes:
+        console (Console): The console object for printing messages.
+        chats (list): List of ChatUI objects representing active chats.
+        username (str): The username of the current user.
+        hostname (str): The hostname of the current user.
+        auth (str): The authentication token for the user.
+        s_pub_k (str): The server's RSA public key.
+        public_key (str): The user's public key.
+        private_key (str): The user's private key.
+        config (dict): Configuration settings for the chat manager.
+        db_conn (sqlite3.Connection): Connection to the chats database.
+        db_cursor (sqlite3.Cursor): Cursor for executing database queries.
+
+    """
+
     def __init__(self, config, username, hostname, auth, s_pub_k, public_key, private_key):
         self.console = Console()
         self.chats = []
@@ -34,6 +60,9 @@ class ChatManager:
         self.load_existing_chats()
 
     def main_menu(self):
+        """
+        Displays the main menu and handles user input.
+        """
         while True:
             self.console.print(
                 "[1] Create new chat\n[2] Enter existing chat\n[3] Exit", style="bold yellow")
@@ -47,6 +76,9 @@ class ChatManager:
                 break
 
     def create_new_chat(self):
+        """
+        Creates a new chat with an interlocutor.
+        """
         interlocutor = Prompt.ask("Enter interlocutor's username@hostname")
         if re.match(r"^[a-zA-Z0-9]+@[a-zA-Z0-9]+$", interlocutor) is None:
             self.console.print("Invalid username@hostname", style="bold red")
@@ -70,6 +102,9 @@ class ChatManager:
         new_chat.start()
 
     def load_existing_chats(self):
+        """
+        Loads existing chats from the database and server.
+        """
         # Fetch chats from the local database
         self.db_cursor.execute("""
             SELECT username, interlocutor, cid, aes_key
@@ -94,6 +129,9 @@ class ChatManager:
                     self.chats.append(new_chat)
 
     def enter_existing_chat(self):
+        """
+        Enters an existing chat.
+        """
         if not self.chats:
             self.console.print("No existing chats.", style="bold red")
             return
@@ -103,7 +141,6 @@ class ChatManager:
                 f"[{index}] {chat.username} - {chat.interlocutor}")
         chat_index = int(Prompt.ask("Select a chat"))
         if 0 <= chat_index < len(self.chats):
-            # chat_protocol = ChatProtocol(self.config, self.auth, self.s_pub_k)
             self.chats[chat_index].start()
         else:
             self.console.print("Invalid selection", style="bold red")

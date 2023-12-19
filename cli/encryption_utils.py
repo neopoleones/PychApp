@@ -12,43 +12,116 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
 
 
+import random
+
 def generate_aes_key():
+    """
+    Generates a random AES key.
+
+    Returns:
+        str: The generated AES key.
+    """
     return "".join([chr(random.randint(32, 126)) for i in range(16)])
 
 def generate_key_pair():
-    # generate pair of keys
+    """
+    Generates a pair of RSA keys.
+
+    Returns:
+        tuple: A tuple containing the private key and the public key.
+    """
     key = RSA.generate(2048)
     private_key = key.export_key()
     public_key = key.publickey().export_key()
     return private_key, public_key
 
-def rsa_encrypt(message, public_key: str | bytes) -> str:
-    # return encrypted message in base64
+def rsa_encrypt(message, public_key):
+    """
+    Encrypts a message using RSA encryption algorithm.
+
+    Args:
+        message (bytes): The message to be encrypted.
+        public_key (str): The public key used for encryption.
+
+    Returns:
+        str: The encrypted message encoded in base64.
+
+    """
     key = RSA.import_key(public_key)
     cipher = PKCS1_OAEP.new(key, hashAlgo=SHA256)
     encrypted_message = cipher.encrypt(message)
     return base64.b64encode(encrypted_message).decode("utf-8")
 
-def rsa_decrypt(message, private_key) -> str:
-    # return decrypted message
+def rsa_decrypt(message, private_key):
+    """
+    Decrypts the given RSA encrypted message using the provided private key.
+
+    Args:
+        message (str): The RSA encrypted message to decrypt.
+        private_key (str): The private key used for decryption.
+
+    Returns:
+        str: The decrypted message.
+
+    """
     key = RSA.import_key(private_key)
     cipher = PKCS1_OAEP.new(key, hashAlgo=SHA256)
     decrypted_message = cipher.decrypt(base64.b64decode(message))
     return decrypted_message.decode()
 
 def aes_encrypt(message, key):
+    """
+    Encrypts the given message using AES encryption algorithm.
+
+    Args:
+        message (str): The message to be encrypted.
+        key (str): The encryption key.
+
+    Returns:
+        str: The encrypted ciphertext.
+    """
     cipher = AES.new(base64.b64decode(key), AES.MODE_ECB)
     ct_bytes = cipher.encrypt(pad(message.encode(), AES.block_size))
     ciphertext = ct_bytes
     return base64.b64encode(ciphertext).decode('utf-8')
 
 def aes_decrypt(ciphertext, key):
+    """
+    Decrypts the given ciphertext using AES encryption algorithm.
+
+    Args:
+        ciphertext (str): The encrypted ciphertext to be decrypted.
+        key (str): The encryption key used for decryption.
+
+    Returns:
+        str: The decrypted plaintext.
+    """
     cipher = AES.new(key.encode(), AES.MODE_ECB)
     pt = unpad(cipher.decrypt(base64.b64decode(ciphertext.encode())), AES.block_size)
     return pt.decode('utf-8')
 
 class RSAAdapter:
+    """
+    A class used for RSA encryption and decryption.   
+
+    Attributes:
+        secret (str): The secret used for encryption and decryption.
+        pub_pem (bytes): The public key in PEM format.
+        p_pem (bytes): The private key in PEM format.
+    """
+
     def __init__(self, secret="", pub_pem=None, p_pem=None):
+        """
+        Initializes an instance of RSAAdapter.
+
+        Args:
+            secret (str): The secret used for encryption and decryption. Default is an empty string.
+            pub_pem (bytes): The public key in PEM format. Default is None.
+            p_pem (bytes): The private key in PEM format. Default is None.
+        
+        Raises:
+            Exception: If no public key or private key is provided.
+        """
         self.secret = secret
 
         if pub_pem is None and p_pem is None:
@@ -59,6 +132,18 @@ class RSAAdapter:
             self.pub_pem, self.p_pem = pub_pem, p_pem
 
     def encrypt(self, message):
+        """
+        Encrypts the given message using the public key.
+
+        Args:
+            message (str): The message to be encrypted.
+
+        Returns:
+            str: The encrypted message in base64-encoded format.
+
+        Raises:
+            Exception: If no public key is provided.
+        """
         if self.pub_pem is None:
             raise Exception("No pub_k provided")
 
@@ -74,6 +159,18 @@ class RSAAdapter:
         return base64.b64encode(encrypted).decode('utf-8')
 
     def decrypt(self, message):
+        """
+        Decrypts the given message using the private key.
+
+        Args:
+            message (str): The encrypted message in base64-encoded format.
+
+        Returns:
+            bytes: The decrypted message.
+
+        Raises:
+            Exception: If no private key or secret is provided.
+        """
         if self.p_pem is None or self.secret is None:
             raise Exception("No pub_k provided")
         message = base64.b64decode(message)
@@ -96,6 +193,12 @@ class RSAAdapter:
         return d_message
 
     def gen_key_pair(self):
+        """
+        Generates a new RSA key pair.
+
+        Returns:
+            tuple: A tuple containing the public key and private key in PEM format.
+        """
         p_k = rsa.generate_private_key(
             public_exponent=65537,
             key_size=2048,
@@ -116,4 +219,10 @@ class RSAAdapter:
         return pub_pem, p_pem
 
     def get_pair(self):
+        """
+        Returns the public key and private key pair.
+
+        Returns:
+            tuple: A tuple containing the public key and private key in PEM format.
+        """
         return self.pub_pem, self.p_pem

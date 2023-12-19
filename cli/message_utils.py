@@ -6,12 +6,35 @@ import base64
 
 
 class ChatProtocol:
+    """
+    Represents a chat protocol for interacting with a chat server.
+
+    Args:
+        config (dict): The configuration settings for the chat protocol.
+        auth (str): The authentication token for accessing the chat server.
+        s_pub_k (str): The public key used for encryption.
+
+    Attributes:
+        config (dict): The configuration settings for the chat protocol.
+        auth (str): The authentication token for accessing the chat server.
+        s_pub_k (str): The public key used for encryption.
+    """
+
     def __init__(self, config, auth, s_pub_k) -> None:
         self.config = config
         self.auth = auth
         self.s_pub_k = s_pub_k
 
     def new_chat(self, interlocutor):
+        """
+        Creates a new chat with the specified interlocutor.
+
+        Args:
+            interlocutor (str): The username and hostname of the interlocutor in the format "username@hostname".
+
+        Returns:
+            tuple: A tuple containing the encoded AES key and the chat ID if the chat creation is successful, False otherwise.
+        """
         url = f"http://{self.config['server_host']}:{self.config['server_port']}/api/chat/new"
 
         username, hostname = interlocutor.split('@')
@@ -38,6 +61,12 @@ class ChatProtocol:
         return False
 
     def list_chats(self):
+        """
+        Retrieves a list of chats.
+
+        Returns:
+            list: A list of chats if the retrieval is successful, False otherwise.
+        """
         url = f"http://{self.config['server_host']}:{self.config['server_port']}/api/chat/list"
 
         headers = {
