@@ -7,21 +7,24 @@ from app.resources.middleware import UserByTokenMiddleware
 
 class NewResource:
     """
-    A resource for handling new chat creation in a Falcon web application.
-
-    This class is responsible for handling POST requests to create a new chat
+    A class responsible for handling POST requests to create a new chat
     between users.
 
     Attributes:
-        storage: The storage backend used for retrieving and storing user and
-        chat information.
+        storage: The storage backend used to retrieve and store user and
+            chat information.
         secret: A secret key used for chat-related operations.
-
-    Methods:
-        on_post(req, resp): Handles the POST request to create a new chat.
     """
 
     def __init__(self, storage, secret):
+        """
+        Initializes the Falcon Resource using storage and secret
+
+        Attributes:
+            storage: mongodb storage
+            secret: secret for creating the chat instance
+        """
+
         self.storage = storage
         self.secret = secret
 
@@ -67,14 +70,13 @@ class NewResource:
         try:
             _ = self.storage.get_chat(init_user, dest_user)
 
-            # Чат есть, выводим ошибку
+            # Chat already exists, raise error
             raise falcon.HTTPBadRequest(
                 title="can't create second chat with user"
             )
 
         except EntityNotFoundException:
-
-            # Чата нет, создаем новый
+            # So, create new chat (no chat exists)
             try:
                 new_chat = Chat(self.secret, enc_aes, init_user, dest_user)
             except ValueError:
@@ -90,11 +92,37 @@ class NewResource:
 
 
 class ListResource:
+    """
+    A class responsible for handling GET requests to list chats with specified user
+
+    Attributes:
+        storage: The storage backend used to retrieve and store user and
+            chat information.
+    """
+
     def __init__(self, storage):
+        """
+        Initializes the Falcon Resource using storage
+
+        Attributes:
+            storage: mongodb storage
+        """
         self.storage = storage
 
     @falcon.before(UserByTokenMiddleware.check_user)
     def on_get(self, req, resp):
+        """
+        Handles GET requests to list chats.
+
+        The method gets user object using the UserByTokenMiddleware, then it
+        initializes the RSAAdapter using public key that was specified by user while registration.
+        Finally, it gets all chats where user is a participator and safely serializes the content
+        encrypting the chat's aes with RSAAdapter.
+
+        Args:
+            req: The request object, containing details about the HTTP request.
+            resp: The response object, used to return data back to the client.
+        """
         init_user = req.context['auth']['user']
         sp = RSAAdapter(pub_pem=init_user.u_pub_k.encode())
 

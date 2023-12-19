@@ -11,22 +11,25 @@ class Config:
     A class to manage configuration settings from a YAML file.
 
     Attributes:
-        env (str): Environment setting, defaults to 'dev'.
-        secret (bytes): Secret key for encryption, generated using Fernet.
-        rsa_secret (str): RSA secret key.
-        rest (dict): Configuration for REST API including host and port.
-        mongo (dict): MongoDB connection settings including connection
-        link and database name.
-
-    Args:
-        path (str): The file path to the YAML configuration file.
-
-    Raises:
-        Exception: If the configuration file is incorrect or missing
-        required sections.
+        env: Environment setting, defaults to 'dev'.
+        secret: Secret key for encryption, generated using Fernet.
+        rsa_secret: RSA secret key.
+        rest: Configuration for REST API including host and port.
+        mongo: MongoDB connection settings including connection
+            link and database name.
     """
 
     def __init__(self, path: str):
+        """
+        Initializes the configuration class
+
+        Args:
+            path: The file path to the YAML configuration file.
+
+        Raises:
+            Exception: If the configuration file is incorrect or missing
+                required sections.
+        """
 
         self.env = 'dev'
         self.secret = Fernet.generate_key()
@@ -45,7 +48,12 @@ class Config:
         self.__load_configuration(path)
 
     def __load_configuration(self, path: str):
-        """Method to load configuration from the specified YAML file."""
+        """
+        Private method to load values from yaml using builtin python functions
+
+        Args:
+            path: The file path to the YAML configuration file.
+        """
 
         with open(path, 'r') as raw:
             cfg = yaml.load(raw, yaml.Loader)
