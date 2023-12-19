@@ -6,6 +6,7 @@ import re
 from message_utils import ChatProtocol
 import asyncio
 
+
 class ChatManager:
     # unique for each user
     def __init__(self, config, username, hostname, auth, s_pub_k, public_key, private_key):
@@ -14,7 +15,7 @@ class ChatManager:
         self.username = username
         self.hostname = hostname
         self.auth = auth  # auth token
-        self.s_pub_k = s_pub_k # serer rsa public key
+        self.s_pub_k = s_pub_k  # serer rsa public key
         self.public_key = public_key
         self.private_key = private_key
         self.config = config
@@ -27,7 +28,8 @@ class ChatManager:
                 id INTEGER PRIMARY KEY,
                 username TEXT,
                 interlocutor TEXT,
-                aes_key TEXT
+                aes_key TEXT,
+                cid TEXT
             )
         """)
         self.load_existing_chats()
@@ -50,33 +52,35 @@ class ChatManager:
         if re.match(r"^[a-zA-Z0-9]+@[a-zA-Z0-9]+$", interlocutor) is None:
             self.console.print("Invalid username@hostname", style="bold red")
             return
-        chat_id = len(self.chats) + 1  # generate a unique chat_id
-        new_chat = ChatUI(self.config, self.username, interlocutor, chat_id, self.auth)
-        chat_protocol = ChatProtocol(self.config, self.auth, self.s_pub_k)
 
-        if not (aes_key := chat_protocol.new_chat(interlocutor)):
+        chat_protocol = ChatProtocol(self.config, self.auth, self.s_pub_k)
+        if not (a := chat_protocol.new_chat(interlocutor)):
             self.console.print("Error creating new chat", style="bold red")
-            
+        aes_key, cid = a
+
+        new_chat = ChatUI(self.config, f"{self.username}@{self.hostname}",
+                          interlocutor, cid, self.auth, aes_key)
+
         # save aes_key to db
         self.db_cursor.execute("""
-            INSERT INTO chats (username, interlocutor, aes_key)
-            VALUES (?, ?, ?)
-        """, (f"{self.username}@{self.hostname}", interlocutor, aes_key))
+            INSERT INTO chats (username, interlocutor, aes_key, cid)
+            VALUES (?, ?, ?, ?)
+        """, (f"{self.username}@{self.hostname}", interlocutor, aes_key, cid))
         self.db_conn.commit()
         self.chats.append(new_chat)
         new_chat.start()
 
-    def load_existing_chats(self): 
+    def load_existing_chats(self):
         # Fetch chats from the local database
         self.db_cursor.execute("""
-            SELECT username, interlocutor
+            SELECT username, interlocutor, cid, aes_key
             FROM chats
-            WHERE username = ?
-        """, (f"{self.username}@{self.hostname}",))
+            WHERE username = ? OR interlocutor = ?
+        """, (f"{self.username}@{self.hostname}", f"{self.username}@{self.hostname}"))
         rows = self.db_cursor.fetchall()
         for row in rows:
-            chat_id = len(self.chats) + 1
-            chat = ChatUI(self.config, self.username, row[1], chat_id, self.auth)
+            chat = ChatUI(self.config, f"{self.username}@{self.hostname}",
+                          row[1], row[2], self.auth, row[3])
             self.chats.append(chat)
 
         # Fetch chats from the server
@@ -85,10 +89,11 @@ class ChatManager:
         if server_chats:
             for chat in server_chats:
                 if chat not in self.chats:
-                    chat_id = len(self.chats) + 1
-                    new_chat = ChatUI(self.config, self.username, chat, chat_id, self.auth)
+                    interlocutor = chat["init_login"] if chat["init_login"] != f"{self.username}@{self.hostname}" else chat["dst_login"]
+                    username = f"{self.username}@{self.hostname}"
+                    new_chat = ChatUI(self.config, username, interlocutor, chat["cid"], self.auth, chat["aes"])
                     self.chats.append(new_chat)
-    
+
     def enter_existing_chat(self):
         if not self.chats:
             self.console.print("No existing chats.", style="bold red")
@@ -99,7 +104,7 @@ class ChatManager:
                 f"[{index}] {chat.username} - {chat.interlocutor}")
         chat_index = int(Prompt.ask("Select a chat"))
         if 0 <= chat_index < len(self.chats):
-            chat_protocol = ChatProtocol(self.config, self.auth, self.s_pub_k)
+            # chat_protocol = ChatProtocol(self.config, self.auth, self.s_pub_k)
             self.chats[chat_index].start()
         else:
             self.console.print("Invalid selection", style="bold red")

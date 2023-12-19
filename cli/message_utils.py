@@ -34,7 +34,7 @@ class ChatProtocol:
         response = requests.request("POST", url, headers=headers, data=payload)
         data = response.json()
         if response.status_code == 200 and data['status'] == 'ok':
-            return base64.b64encode(aes_key).decode('utf-8')
+            return (base64.b64encode(aes_key).decode('utf-8'), data['cid'])
         return False
 
     def list_chats(self):
