@@ -1,0 +1,3 @@
+server_host = "89.104.70.246"
+server_port = 8081
+ws_port = 8080
