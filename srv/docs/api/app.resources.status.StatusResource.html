@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "DTD/xhtml1-strict.dtd">
+<html>
+  
+
+  <head>
+    
+    <title>app.resources.status.StatusResource</title>
+    <meta name="generator" content="pydoctor 23.9.1"> 
+        
+    </meta>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1" />
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="apidocs.css" />
+    <link rel="stylesheet" type="text/css" href="extra.css" />
+</head>
+
+  <body>
+
+    
+
+    <nav class="navbar navbar-default mainnavbar">
+      
+  
+  <div class="container-fluid">
+
+
+    <div class="navbar-header">
+      
+      <div class="navlinks">
+        <span class="navbar-brand">
+          app <a href="index.html">API Documentation</a>
+        </span>
+
+        <a href="moduleIndex.html">
+          Modules
+        </a>
+
+        <a href="classIndex.html">
+          Classes
+        </a>
+
+        <a href="nameIndex.html">
+          Names
+        </a>
+
+        <div id="search-box-container">
+          <div class="input-group">
+            <input id="search-box" type="search" name="search-query" placeholder="Search..." aria-label="Search" minlength="2" class="form-control" autocomplete="off" />
+            
+            <span class="input-group-btn">
+              <a style="display: none;" class="btn btn-default" id="search-clear-button" title="Clear" onclick="clearSearch()"><img src="fonts/x-circle.svg" alt="Clear" /></a>
+              <a class="btn btn-default" id="search-help-button" title="Help" onclick="toggleSearchHelpText()"><img src="fonts/info.svg" alt="Help" /></a>
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="search-results-container" style="display: none;">
+        
+        <div id="search-buttons">
+          <span class="label label-default" id="search-docstrings-button">
+          <label class="checkbox-inline">
+            <input type="checkbox" id="toggle-search-in-docstrings-checkbox" value="false" onclick="toggleSearchInDocstrings()">
+              search in docstrings
+            </input>
+          </label>
+          </span>
+          
+        </div>
+        
+        <noscript>
+            <h1>Cannot search: JavaScript is not supported/enabled in your browser.</h1>
+        </noscript>
+
+        <div class="hint" id="search-help-box">
+          <p class="rst-last">
+      
+            Search bar offers the following options:
+            <ul>   
+                <li>
+                  <strong>Term presence.</strong> The below example searches for documents that 
+                    must contain “foo”, might contain “bar” and must not contain “baz”: <code>+foo bar -baz</code>
+                </li> 
+
+                <li>
+                  <strong>Wildcards.</strong> The below example searches for documents with words beginning with “foo”: <code>foo*</code>
+                </li> 
+
+                <li>
+                  <strong>Search in specific fields.</strong> The following search matches all objects 
+                  in "twisted.mail" that matches “search”: <code>+qname:twisted.mail.* +search</code>
+
+                  <p>
+                    Possible fields: 'name', 'qname' (fully qualified name), 'docstring', and 'kind'.
+                    Last two fields are only applicable if "search in docstrings" is enabled.
+                  </p>
+                </li>
+
+                <li>
+                  <strong>Fuzzy matches.</strong> The following search matches all documents 
+                  that have a word within 1 edit distance of “foo”: <code>foo~1</code>
+                </li>
+            </ul>
+
+          </p>
+        </div>
+
+        <div id="search-status"> </div>
+
+        <div class="warning" id="search-warn-box" style="display: none;">
+          <p class="rst-last"><span id="search-warn"></span></p>
+        </div>
+
+        <table id="search-results">
+          <!-- Filled dynamically by JS -->
+        </table>
+        
+        <div style="margin-top: 8px;">
+          <p>Results provided by <a href="https://lunrjs.com">Lunr.js</a></p>
+        </div>
+      </div>
+
+    </div>
+
+
+  </div>
+</nav>
+    
+    <div class="container-fluid">
+
+      <!-- Side navigation -->
+      <div class="sidebarcontainer" style="display: none;">
+        
+        <div class="sidebar"><nav class="sidebar">
+  
+
+  <div>
+
+      <div class="thingTitle">
+        <span>Class</span>
+        <code class="thisobject"><a href="app.resources.status.StatusResource.html" class="internal-link" title="This class"><wbr></wbr>Status<wbr></wbr>Resource</a></code> 
+      </div>
+      
+      <div>
+        
+
+        
+         
+
+        
+        
+
+        <div class="childrenKindTitle">Methods</div>
+        <ul>
+    
+    <li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#__init__" class="internal-link" title="app.resources.status.StatusResource.__init__">__init__</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#on_get" class="internal-link" title="app.resources.status.StatusResource.on_get">on<wbr></wbr>_get</a></code>
+            </div>
+        
+
+    </li>
+</ul> 
+
+        
+         
+
+        <div class="childrenKindTitle">Attributes</div>
+        <ul>
+    
+    <li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#cfg" class="internal-link" title="app.resources.status.StatusResource.cfg">cfg</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#started" class="internal-link" title="app.resources.status.StatusResource.started">started</a></code>
+            </div>
+        
+
+    </li>
+</ul> 
+
+        
+         
+        
+      </div>
+  </div><div>
+
+      <div class="thingTitle">
+        <span>Module</span>
+        <code><a href="app.resources.status.html" class="internal-link" title="The parent of this class">status</a></code> 
+      </div>
+      
+      <div>
+        
+
+        
+         
+
+        <div class="childrenKindTitle">Classes</div>
+        <ul>
+    
+    <li class=" thisobject">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="app.resources.status.StatusResource.html" class="internal-link" title="app.resources.status.StatusResource"><wbr></wbr>Status<wbr></wbr>Resource</a></code>
+            </div>
+        
+
+    </li>
+</ul>
+
+        
+         
+
+        
+         
+
+        
+         
+
+        
+         
+        
+      </div>
+  </div>
+
+</nav>
+        </div>
+        <div id="collapseSideBar">
+          <a class="btn btn-link" onclick="toggleSideBarCollapse()" title="Toggle Sidebar Collapse">
+          </a>
+        </div> 
+        <script src="sidebartoggle.js" type="text/javascript"></script>
+       
+      </div>
+
+      <div id="main" class="">
+        
+
+        
+
+        <div class="page-header">
+          <h1 class="class"><code><code><a href="index.html" class="internal-link">app</a></code><wbr></wbr>.<code><a href="app.resources.html" class="internal-link" title="app.resources">resources</a></code><wbr></wbr>.<code><a href="app.resources.status.html" class="internal-link" title="app.resources.status">status</a></code><wbr></wbr>.<code><a href="app.resources.status.StatusResource.html" class="internal-link" title="app.resources.status.StatusResource">StatusResource</a></code></code></h1>
+          <div id="showPrivate">
+            <button class="btn btn-link" onclick="togglePrivate()">Toggle Private API</button>
+          </div>
+        </div>
+
+        <div class="categoryHeader">
+          class documentation
+        </div>
+
+        <div class="extrasDocstring">
+          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">StatusResource</span>:</code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="app.resources.status.StatusResource.__init__">StatusResource(cfg)</a></code></p>
+          <p><a href="classIndex.html#app.resources.status.StatusResource">View In Hierarchy</a></p>
+        </div>
+
+        <div class="moduleDocstring">
+          <div><p>A resource for retrieving the status of the application.</p>
+<p>This class provides an endpoint to get the current state of the application, including its uptime and
+the environment it's running in. Optionally, if a user is authenticated, their login information is included.</p>
+</div>
+        </div>
+
+        <div id="splitTables">
+          <table class="children sortable" id="id15">
+  
+  
+  <tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#__init__" class="internal-link" title="app.resources.status.StatusResource.__init__">__init__</a></code></td>
+    <td>Initialize a StatusResource instance.</td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#on_get" class="internal-link" title="app.resources.status.StatusResource.on_get">on<wbr></wbr>_get</a></code></td>
+    <td>Handle a GET request to the status endpoint.</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#cfg" class="internal-link" title="app.resources.status.StatusResource.cfg">cfg</a></code></td>
+    <td>A configuration object containing environment and other settings.</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#started" class="internal-link" title="app.resources.status.StatusResource.started">started</a></code></td>
+    <td>The timestamp when the instance was created, used to calculate uptime.</td>
+  </tr>
+</table>
+          
+
+            
+        </div>
+
+        <div id="childList">
+          <div class="basemethod">
+  
+  
+  <a name="app.resources.status.StatusResource.__init__">
+    
+  </a>
+  <a name="__init__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">__init__</span><span class="function-signature">(self, cfg)</span>:
+    
+    <a class="headerLink" href="#__init__" title="app.resources.status.StatusResource.__init__">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Initialize a StatusResource instance.</p>
+<p>The constructor initializes the <code><a href="#started" class="internal-link" title="app.resources.status.StatusResource.started">started</a></code> attribute to the current time and stores the configuration object.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">cfg</span></td><td class="fieldArgDesc">A configuration object containing environment and other settings.</td></tr></table></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="app.resources.status.StatusResource.on_get">
+    
+  </a>
+  <a name="on_get">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">on_get</span><span class="function-signature">(self, req, resp)</span>:
+    
+    <a class="headerLink" href="#on_get" title="app.resources.status.StatusResource.on_get">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Handle a GET request to the status endpoint.</p>
+<p>This method constructs a status response that includes the application name, status ("ok"), and uptime.
+If a user is authenticated and available in the request context,
+their login information is included in the response.
+It sets the constructed status information in the response media and sets the HTTP status to 200 OK.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">req</span></td><td class="fieldArgDesc">The request object.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">resp</span></td><td class="fieldArgDesc">The response object.</td></tr></table></div>
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="app.resources.status.StatusResource.cfg">
+    
+  </a>
+  <a name="cfg">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">cfg</span> =
+    
+    <a class="headerLink" href="#cfg" title="app.resources.status.StatusResource.cfg">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>A configuration object containing environment and other settings.</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="app.resources.status.StatusResource.started">
+    
+  </a>
+  <a name="started">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">started</span> =
+    
+    <a class="headerLink" href="#started" title="app.resources.status.StatusResource.started">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>The timestamp when the instance was created, used to calculate uptime.</p></div>
+    
+  </div>
+</div>
+        </div>
+      
+      </div>
+    </div>
+
+    <footer class="navbar navbar-default">
+
+  
+  <div class="container">
+    <a href="index.html">API Documentation</a> for app,
+  generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
+    23.9.1 at 2023-12-20 00:00:52.
+  </div>
+
+  <!-- Search related scripts needs to be loaded at the end of HTML 
+    parsing not to introduce overhead and display HTML data asap -->
+  <script src="ajax.js" type="text/javascript"></script>
+  <script src="searchlib.js" type="text/javascript"></script>
+  <script src="search.js" type="text/javascript"></script>
+
+</footer>
+  
+    <script src="pydoctor.js" type="text/javascript"></script>
+
+  </body>
+</html>

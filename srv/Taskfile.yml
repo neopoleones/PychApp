@@ -1,6 +1,25 @@
 version: 3
 tasks:
+  push_image:
+    cmds:
+      - "sudo docker tag l0-pychapp:latest xpoleones/pychapp:latest"
+      - "sudo docker push xpoleones/pychapp:latest"
+    desc: "Pushes the image to dockerhub"
+
+  generate_docs:
+    cmds:
+      - "pydoctor --make-html --html-output=docs/api app --docformat google"
+    desc: "Generates docs based on class/methods comments"
+
+  show_docs:
+    dir: "./docs"
+    preconditions:
+      - "go-task generate_docs || echo 'Done'"
+    cmds:
+      - "python3 -m http.server 8080"
+    desc: "Fires the documentation server"
+
   run:
     cmds:
-      - echo "Some mock exec"
+      - "python3 pych.app"
     desc: "Fires the service"

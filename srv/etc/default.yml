@@ -1,0 +1,12 @@
+pychapp:
+  env: dev
+  secret: "Pls68m35-oXRfEo1HAPKPyjI3SPiC-3UP140vn1xisU="
+  rsa_secret: "change_it"
+
+  rest:
+    host: '0.0.0.0'
+    port: 8081
+
+  mongo:
+    con_link: mongodb://mongo:27017/
+    db: pychapp

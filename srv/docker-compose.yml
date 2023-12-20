@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:6-jammy
+    hostname: mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_state_12:/data/db
+
+  pychapp:
+    hostname: pych
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    build:
+      context: .
+      dockerfile: ./images/pychapp/Dockerfile
+
+    depends_on:
+      - mongodb
+
+volumes:
+  mongo_state_12:
+
+networks:
+  default:
+    name: "pychapp-network"
