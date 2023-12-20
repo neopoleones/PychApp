@@ -40,7 +40,14 @@ class ChatUI:
 
     """
 
-    def __init__(self, config, username, interlocutor, cid, auth, aes_key: bytes):
+    def __init__(
+            self,
+            config,
+            username,
+            interlocutor,
+            cid,
+            auth,
+            aes_key: bytes):
         self.ws_url = f"ws://{config['server_host']}:{config['ws_port']}/ws"
         self.console = Console()
         self.messages = queue.Queue()

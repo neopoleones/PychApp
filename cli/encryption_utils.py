@@ -105,7 +105,7 @@ def aes_decrypt(ciphertext: bytes, key: bytes) -> bytes:
     cipher = AES.new(key, AES.MODE_ECB)
     pt = unpad(
         cipher.decrypt(
-                ciphertext),
+            ciphertext),
         AES.block_size)
     return pt
 

@@ -100,7 +100,7 @@ class ChatManager:
 
         # aes_key - bytes
         aes_key, cid = a
-        new_chat = ChatUI(self.config, f"{self.username}@{self.hostname}",
+        new_chat = ChatUI(self.config, f"{self.username}",
                           interlocutor, cid, self.auth, aes_key)
 
         aes_key_b64 = base64.b64encode(aes_key).decode("utf-8")
@@ -129,8 +129,13 @@ class ChatManager:
             aes_b64_enc = row[3]
             k_aes = base64.b64decode(aes_b64_enc)
 
-            chat = ChatUI(self.config, f"{self.username}@{self.hostname}",
-                          row[1], row[2], self.auth, k_aes)  # aes here also patched
+            chat = ChatUI(
+                self.config,
+                f"{self.username}@{self.hostname}",
+                row[1],
+                row[2],
+                self.auth,
+                k_aes)  # aes here also patched
             self.chats.append(chat)
 
         # Fetch chats from the server
