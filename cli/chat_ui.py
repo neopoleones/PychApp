@@ -33,14 +33,14 @@ class ChatUI:
         interlocutor (str): The username of the interlocutor.
         cid (int): The chat ID.
         auth (str): The authentication token.
-        aes_key (str): The AES encryption key.
+        aes_key (bytes): The AES encryption key.
         db_conn (sqlite3.Connection): The SQLite database connection.
         db_cursor (sqlite3.Cursor): The database cursor.
         ws (WebSocket): The WebSocket connection.
 
     """
 
-    def __init__(self, config, username, interlocutor, cid, auth, aes_key):
+    def __init__(self, config, username, interlocutor, cid, auth, aes_key: bytes):
         self.ws_url = f"ws://{config['server_host']}:{config['ws_port']}/ws"
         self.console = Console()
         self.messages = queue.Queue()
@@ -97,7 +97,11 @@ class ChatUI:
                 VALUES (?, ?, ?)
             """, (self.cid, self.username, message))
             self.db_conn.commit()
-            self.send_ws(aes_encrypt(message, self.aes_key))
+
+            # допустим, что ключ - bytes
+            enc_message = aes_encrypt(message.encode(), self.aes_key)
+            b64_message = base64.b64encode(enc_message).decode()
+            self.send_ws(b64_message)
 
     def start(self):
         """
@@ -132,13 +136,14 @@ class ChatUI:
         if self.ws:
             self.ws.close()
 
-    def receive_message(self, message):
+    def receive_message(self, message: str):
         """
         Receives a message from the interlocutor.
 
         Args:
             message (str): The received message.
         """
+
         self.messages.put((self.interlocutor, message))
         self.db_cursor.execute("""
             INSERT INTO messages (cid, sender, message)
@@ -152,12 +157,16 @@ class ChatUI:
         """
         while self.running:
             if self.ws:
+                raw_msg = self.receive_ws()
+                b64_message = json.loads(raw_msg)["msg"]
+                b64_decoded = base64.b64decode(b64_message)
+
                 message = aes_decrypt(
-                    json.loads(
-                        self.receive_ws())["msg"],
-                    self.aes_key)
+                    b64_decoded,
+                    self.aes_key
+                )
                 if message:
-                    self.receive_message(message)
+                    self.receive_message(message.decode())
             time.sleep(0.1)  # Reduce CPU usage
 
     def connect_ws(self):

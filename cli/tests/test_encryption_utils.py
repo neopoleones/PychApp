@@ -31,9 +31,10 @@ class TestRSAAdapter(unittest.TestCase):
 
 class TestAES(unittest.TestCase):
     def test_aes(self):
-        message = "Hello, World!"
-        key = "A" * 16
-        encrypted = aes_encrypt(message, base64.b64encode(key.encode()))
+        message = b"Hello, World!"
+        key = b"A" * 16
+
+        encrypted = aes_encrypt(message, key)
         decrypted = aes_decrypt(encrypted, key)
         self.assertEqual(decrypted, message)
 

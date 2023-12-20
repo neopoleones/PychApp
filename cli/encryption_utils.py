@@ -56,7 +56,7 @@ def rsa_encrypt(message, public_key):
     return base64.b64encode(encrypted_message).decode("utf-8")
 
 
-def rsa_decrypt(message, private_key):
+def rsa_decrypt(message, private_key) -> bytes:
     """
     Decrypts the given RSA encrypted message using the provided private key.
 
@@ -65,50 +65,49 @@ def rsa_decrypt(message, private_key):
         private_key (str): The private key used for decryption.
 
     Returns:
-        str: The decrypted message.
+        str: The decrypted message (bytes, plain).
 
     """
     key = RSA.import_key(private_key)
     cipher = PKCS1_OAEP.new(key, hashAlgo=SHA256)
-    decrypted_message = cipher.decrypt(base64.b64decode(message))
-    return decrypted_message.decode()
+    return cipher.decrypt(base64.b64decode(message))
 
 
-def aes_encrypt(message, key):
+def aes_encrypt(message: bytes, key: bytes) -> bytes:
     """
     Encrypts the given message using AES encryption algorithm.
 
     Args:
         message (str): The message to be encrypted.
-        key (bytes): The encryption key.
+        key (bytes): The encryption key, plain bytes.
 
     Returns:
-        str: The encrypted ciphertext encoded in base64.
+        str: The encrypted ciphertext encoded in bytes (not base64).
     """
-    cipher = AES.new(base64.b64decode(key), AES.MODE_ECB)
-    ct_bytes = cipher.encrypt(pad(message.encode(), AES.block_size))
-    ciphertext = ct_bytes
-    return base64.b64encode(ciphertext).decode('utf-8')
+
+    cipher = AES.new(key, AES.MODE_ECB)
+
+    ct_bytes = cipher.encrypt(pad(message, AES.block_size))
+    return ct_bytes
 
 
-def aes_decrypt(ciphertext, key):
+def aes_decrypt(ciphertext: bytes, key: bytes) -> bytes:
     """
     Decrypts the given ciphertext using AES encryption algorithm.
 
     Args:
-        ciphertext (bytes): The encrypted ciphertext to be decrypted.
+        ciphertext (bytes): The encrypted ciphertext to be decrypted, bytes (not base64!).
         key (str): The encryption key used for decryption.
 
     Returns:
         str: The decrypted plaintext.
     """
-    cipher = AES.new(key.encode(), AES.MODE_ECB)
+    cipher = AES.new(key, AES.MODE_ECB)
     pt = unpad(
         cipher.decrypt(
-            base64.b64decode(
-                ciphertext.encode())),
+                ciphertext),
         AES.block_size)
-    return pt.decode('utf-8')
+    return pt
 
 
 class RSAAdapter:

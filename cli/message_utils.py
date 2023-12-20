@@ -58,8 +58,7 @@ class ChatProtocol:
         data = response.json()
         if response.status_code == 200 and data['status'] == 'ok':
             return (
-                base64.b64encode(
-                    aes_key.encode()).decode('utf-8'),
+                aes_key.encode(),
                 data['cid'])
         return False
 

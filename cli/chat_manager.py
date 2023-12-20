@@ -1,3 +1,5 @@
+import base64
+
 from chat_ui import ChatUI
 from rich.console import Console
 from rich.prompt import Prompt
@@ -95,16 +97,19 @@ class ChatManager:
         chat_protocol = ChatProtocol(self.config, self.auth, self.s_pub_k)
         if not (a := chat_protocol.new_chat(interlocutor)):
             self.console.print("Error creating new chat", style="bold red")
-        aes_key, cid = a
 
+        # aes_key - bytes
+        aes_key, cid = a
         new_chat = ChatUI(self.config, f"{self.username}@{self.hostname}",
                           interlocutor, cid, self.auth, aes_key)
+
+        aes_key_b64 = base64.b64encode(aes_key).decode("utf-8")
 
         # save aes_key to db
         self.db_cursor.execute("""
             INSERT INTO chats (username, interlocutor, aes_key, cid)
             VALUES (?, ?, ?, ?)
-        """, (f"{self.username}@{self.hostname}", interlocutor, aes_key, cid))
+        """, (f"{self.username}@{self.hostname}", interlocutor, aes_key_b64, cid))
         self.db_conn.commit()
         self.chats.append(new_chat)
         new_chat.start()
@@ -121,8 +126,11 @@ class ChatManager:
         """, (f"{self.username}@{self.hostname}", f"{self.username}@{self.hostname}"))
         rows = self.db_cursor.fetchall()
         for row in rows:
+            aes_b64_enc = row[3]
+            k_aes = base64.b64decode(aes_b64_enc)
+
             chat = ChatUI(self.config, f"{self.username}@{self.hostname}",
-                          row[1], row[2], self.auth, row[3])
+                          row[1], row[2], self.auth, k_aes)  # aes here also patched
             self.chats.append(chat)
 
         # Fetch chats from the server
