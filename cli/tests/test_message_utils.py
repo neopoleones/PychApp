@@ -51,8 +51,7 @@ class TestChatProtocol(unittest.TestCase):
                         data='{"dest_username": "user", "dest_hostname": "example.com", "enc_aes": "encrypted_aes_key"}')
 
                     self.assertEqual(
-                        result, (base64.b64encode(
-                            aes_key.encode()).decode(), chat_id))
+                        result, (aes_key.encode(), chat_id))
 
     def test_list_chats_success(self):
         expected_response = {
